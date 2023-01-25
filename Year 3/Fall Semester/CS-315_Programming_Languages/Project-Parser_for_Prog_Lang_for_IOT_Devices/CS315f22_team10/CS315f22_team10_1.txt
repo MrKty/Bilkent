@@ -1,0 +1,558 @@
+//
+// Declarations
+int temp;
+bool a1;
+float sd;
+string b;
+conn connect;
+
+// Assignments
+int a = 10;
+float b = 3.1;
+bool isWhile = true;
+int sum = 0;
+string my = "My Language";
+conn connection = connectURL("https://www.cs.bilkent.edu.tr/~guvenir/courses/CS315/Pr2.htm");
+
+
+
+// Comments
+// this code is in comment so it won't change
+// fun function() {return 21231}
+
+// Loops
+// for loops
+
+for(int i = 1 ; a < 3 ; a = a + 1) {	
+	print(1);
+	print(1);
+}
+
+for(int i = 1 ; a > 3 ; a = 1 + 1) 	
+	print(1);
+
+
+for(int i = 1 ; a <= 3 ; a = a + b) {
+	print(1);
+}
+
+for(int i = 1 ; true ; a = 5 + b) {	
+    	print(1);
+}
+
+for(; true ; ) {
+	print(1);
+}
+
+//  this is a comment
+for(int i = 1 ; i < a ; i = i + 3) {
+	
+	print(i);
+}
+
+for(int i = 1 ; true ; a = 5 + b) {	
+    	print(1);
+	print(1);
+}
+
+//  this is a comment
+for(; true ; ) {
+	print(1);
+	print(1);
+}
+
+
+for(int i = 1 ; 3 < a ; a = 1 + a) {	
+	print(1);
+}
+
+for(int i = 1 ; a > a ; a = 1 + a) 	
+	print(1);
+
+
+for(int i = 1 ; 2 <= getNum(1) ; a = 1 + b) {
+	print(1);
+}
+
+for(int i = a ; true ; a = 13 + 43 * timeBy( 1243, a) / 31 + 12) {	
+    	print(1);
+	print(1);
+}
+
+for(; boolReturnedFunc(1, false, "sdsds\"asda", "3fsdf") && ( timeby(1, 231) > a)  ; ) {
+	print(1);
+	print(1);
+}
+//  this is a comment
+for(int i = 1 ; i * a + 5 > 10; i = i + i) {
+	print(i);
+}
+
+for(;;)
+for(;;){}
+
+
+
+// While loops:
+while(true) {	
+	print(1);
+	print(1);
+}
+
+while(1 < boolReturnedFunc(1, false, "sdsds\"asda", "3fsdf") && boolReturnedFunc(3, false, "sdsds\"asda", "3fsdf") > -16) {
+	readSensor();
+}
+
+while(false) {	
+	print(1);
+	print(2);
+}
+
+while(1 < 0 || 15 >= a) {	
+	print(1);
+	print(2);
+}
+
+while(1 < 0) {	
+	print(1);
+	print(2);
+}
+
+while(1 > 0) {	
+	print(1);
+	print(2);
+}
+
+
+while(1 <= 0) {	
+	print(1);
+	print(2);
+}
+
+
+while(1 < 0) {	
+	print(1);
+	print(2);
+}
+
+
+while(1 == 0) {	
+	print(1);
+	print(2);
+}
+
+
+while(a < 0) {	
+	print(1);
+	print(2);
+}
+
+while(a > 0) {	
+	print(1);
+	print(2);
+}
+
+
+while(a <= 0) {	
+	print(1);
+	print(2);
+}
+
+while(a < 0) {	
+	print(1);
+	print(2);
+}
+
+while(a == 0) {	
+	print(1);
+	print(2);
+}
+
+
+while(1 < a) {	
+	print(1);
+	print(2);
+}
+
+while(1 > a) {	
+	print(1);
+	print(2);
+}
+
+
+while(1 <= a) {	
+	print(1);
+	print(2);
+}
+
+
+while(1 >= a) {	
+	print(1);
+	print(2);
+}
+
+
+while(1 == a) {	
+	print(1);
+	print(2);
+}
+
+while(a < a) {	
+	print(1);
+	print(2);
+}
+
+while(a > a) {	
+	print(1);
+	print(2);
+}
+
+
+while(a <= a) {	
+	print(1);
+	print(2);
+}
+
+
+while(a >= a) {	
+	print(1);
+	print(2);
+}
+
+
+while(a == a) {	
+	print(1);
+	print(2);
+}
+
+while(isLoop) {	
+	print(1);
+	print(2);
+}
+
+while(true) 
+  	print(2);
+
+while(false) 
+  	print(2);
+
+while(1 < 1) 
+  	print(2);
+
+while(1 <= 1) 
+  	print(2);
+
+while(1 > 1) 
+  	print(2);
+
+while(1 >= 1) 
+  	print(2);
+
+while(1 == 1) 
+  	print(2);
+
+while(a < 1) 
+  	print(2);
+
+while(a <= 1) 
+  	print(2);
+
+while(a > 1) 
+  	print(2);
+
+while(a >= 1) 
+  	print(2);
+
+while(a == 1) 
+  	print(2); // wow
+
+while(1 < a) 
+  	print(2);
+
+while(1 <= a) 
+  	print(2); // This is a comment :)
+
+while(1 > a) 
+  	print(2);
+
+while(1 >= a) 
+  	print(2);
+
+while(1 == a) 
+  	print(2);
+
+
+while(a < a) 
+  	print(2);
+
+while(a <= a) 
+  	print(2);
+
+while(a > a) 
+  	print(2);
+
+while(a >= a) 
+  	print(2);
+
+while(a == a) 
+  	print(2);
+
+while(isLooping) 
+  	print(2);
+
+while(isWhile) {
+	
+	print(b);
+	a = a - 1;
+
+	if(a == 0) {
+
+	 sum = sum + input();
+   	 isWhile = false;
+
+	}
+} 
+
+// Standart Functions
+
+// void function
+
+fun calculateSumAndPrint(int x , float y ) {
+	float k = x + 7;
+	print(k);
+}
+// return int
+
+fun calculateSumAndReturn(conn x , bool y ) {
+	return x + 1;
+}
+
+fun calculateSumAndReturn(string x , int y ) {
+	return returnFun(1, 2, 4);
+}
+
+fun calculateSumAndReturn(int x , int y ) {
+	return input();
+}
+
+fun calculateSumAndReturn(int x) {
+	return "121324";
+}
+
+fun calculateSumAndReturn(int x) {
+	return 10.5;
+}
+
+// Function Calls
+
+calculateSumAndPrint(3, 1.32);
+int result = calculateSumAndReturn(1 , 4);
+string result = calculateSumAndReturn(input() , function(1, 2, input(), function(1, true, "sdsads")));
+
+// Special Functions
+						   
+connectURL ("https://www.cs.bilkent.edu.tr/~guvenir/courses/CS315/Pr1.htm").getDataFromConn();	
+connectURL ("https://www.cs.bilkent.edu.tr/~guvenir/courses/CS315/Pr1.htm").sendDataByConn(4);					
+print(getTimestamp()); 						
+conn connection = connectURL("https://www.cs.bilkent.edu.tr/~guvenir/courses/CS315/Pr2.htm");
+int a = connection.getDataFromConn();	
+connection.sendDataByConn(digitReturnedFunc(input()));	
+			
+changeSwitchStateAndControlActuator(number);
+changeSwitchStateAndControlActuator(getNumber());
+changeSwitchStateAndControlActuator(getNumber(4,2));
+changeSwitchStateAndControlActuator(1);
+
+int currentTemp = readTemp();
+int currentHumidity = readHumidity();
+int currentAirPressure = readAirPressure();
+int currentAirQuality = readAirQuality();
+
+
+
+// Conditional Statements
+
+if(3 > 1) {
+
+print(my);
+
+} 
+else {
+
+print("my");
+
+}
+
+if(2 != 1)  {print(my);}
+
+if(a < 0) {
+			print(1);
+}
+else {
+
+	if(true) {
+		print(1);
+	}
+	else {
+		print(2);
+	}
+
+	if(false) {
+		print(3);
+	}else  {
+		print(4);
+	}
+}
+
+if(0 == a) {
+			print(1);
+}
+
+if(a == 0) {
+			print(1);
+}
+else {
+	
+			print(1);
+}
+
+if(a == b) {
+			print(1);
+}
+
+if(1 < 3) {
+			print(1);
+}
+else {
+			print(1);
+}
+
+if(isPhone) {
+			print(1);
+}
+else {
+			print(1);
+	
+}
+
+if(getTemp()) {
+			print(1);
+
+}
+
+if(boolFunction(1 , input())) {
+	if (true) {
+		if (25 > 10.5) {
+		
+		} else {
+			print("ok");
+		}
+	}
+}
+
+if(a >= a) {
+			print(1);
+
+}
+
+if(a > a) {
+			print(1);
+
+} 
+
+if(1 <= a) {
+			print(1);
+			print("232323");
+
+}
+if (false) {
+	print("232323");
+}
+if(1 <= a) {
+
+	if (a < 2) {
+		
+	   print(1);
+
+	} 
+	else {
+		
+	   print(1);
+
+	   if(true) {
+	       print(1);
+	   }
+	}
+
+} 
+
+
+// Arithmetic operations
+fun timeBy( int k, float l) {
+    return k * l;
+}
+
+i = ( i + 15 ) - 20 + 15 * i - i / 20;
+int i = 10;
+int b = 20;
+float a = 5;
+
+    i = 100;
+    i = 3 + 2;
+    i = 3 + i;
+    i = i + 3;
+    i = i + i;
+    i = 3 * 2;
+    i = 3 * i;
+    i = i * 2;
+    i = i * i;
+    i = 3 - 2;
+    i = 3 - i;
+    i = i - 3;
+    i = i - i;
+    i = 3 / 2;
+    i = 3 / i;
+    i = i / 2;
+    i = i / i;
+    i = a * b;
+    i = a * 10;
+    i = 13 * b;
+    i = b / a;
+    i = a - b;
+    i = b + a;
+    i = ( i + 15 ) - 20 + 15 * i - i / 20 + i * b - a / b;
+    i = timeBy( a, b);
+    i = a + timeBy( a, b);
+    i = 13 + timeBy( a, b) + a * b;
+    i = timeBy( a, b) + b;
+    i = ( 13 + timeBy( a, b) * a * b) * a;
+    i = i * ( timeBy( a, b) + a + (timeBy( a, b) * a) - ( b * timeBy( a, b) - a) * i);
+
+
+// print
+print(2 + 1);
+print(2 - 1);
+print(2 / 1);
+print(2 * 1);
+print(2 > 1);
+print(2 >= 1);
+print(2 < 1);
+print(2 <= 1);
+print(2 == 1);
+print(true);
+print(true || false);
+print(true && true);
+print(true || (1 > 2));
+print(input());
+print();
+print(i);
+print(10);
+print("adsadaad");
+print(exampleFunctCall());
+print(exampleFunctCall(1, 2));
+print(exampleFunctCall("test", 10));
+print(exampleFunctCall(false));
+print(exampleFunctCall(false, a, 17.2));
+print(exampleFunctCall(false, a, 17.2) + "3211532" + a + " is also known as " + 5 + " something");
+print( "3211532" + a + " is also known as " + exampleFunctCall(false, a, 17.2));
+print(exampleFunctCall(false, input(), a));

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script>
+        // Unconditional Exits in JS
+        // Unlabeled Exits in JS
+        console.log("----------------Unlabeled Exits----------------");
+        for (let i = 1; i <= 6; i++) {
+            if (i == 3) {
+                console.log(`Unlabeled continue is used to pass the current iteration when the value is ${i}`);
+                continue;
+            } else if (i == 5) {
+                console.log(`Unlabeled break is used to break the loop when the value is: ${i}`);
+                console.log("The remaining value 6 will not be printed.");
+                break;
+            }
+            console.log(`Loop value: ${i}`);
+        }
+        console.log("---------------------------------------------------\n");
+
+        // Labeled Exits in JS
+        console.log("-------------------Labeled Exits-------------------");
+        Outer: for (let i = 1; i <= 3; i++) {
+            console.log(`Outer value: ${i}`);
+            Inner: for (let i2 = 1; i2 <= 6; i2++) {
+                if (i == 1) {
+                    console.log(` Labeled continue is used, skipped outer loop iteration value: ${i}`);
+                    continue Outer;
+                } else if (i == 2 && i2 == 3) {
+                    console.log(` Labeled break is used to terminate current inner loop iteration.`);
+                    break Inner;
+                } else if (i2 == 3) {
+                    console.log(` Labeled continue is used, skipped inner loop iteration value: ${i2}`);
+                    continue Inner;
+                } else if (i2 == 5) {
+                    console.log(" Labeled break is used to terminate current outer loop iteration");
+                    break Outer;
+                }
+                console.log(` Inner value: ${i2}`);
+            }
+        }
+        console.log("Outer Loop is successfully broken");
+        console.log("---------------------------------------------------");
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,913 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Color Palette */
+    --sonic-silver: hsla(226, 7%, 40%, 1);
+    --van-dyke-brown: hsla(23, 40%, 30%, 1);
+    --coffee: hsla(25, 36%, 25%, 1);
+    --dim-gray: hsla(30, 2%, 50%, 1);
+    --dim-gray-light: hsla(30, 2%, 80%, 1);
+    --font-color: hsl(35, 67%, 76%);
+    --font-color-darker: hsl(40, 100%, 73%);
+    --background-color: hsl(24, 20%, 40%);
+    --animate-delay: 0.05s!important;
+}
+
+html {
+    font-size: 62.5%; /* Because of this property, 1rem equals 10 pixels throughout the page */
+    font-family: 'Happy Monkey', sans-serif;
+    color: var(--font-color);
+    scroll-behavior: smooth;
+}
+
+/*  ================================================================
+    Typography
+    ================================================================ */
+p {
+    font-family: Verdana, sans-serif;
+}
+
+
+ul {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100vw;
+    margin: 0 auto;
+    align-items: center;
+}
+
+li {
+    font-size: 1.8rem;
+    font-weight: 700;
+    padding: 0 1vw;
+}
+
+h1 {
+    font-size: 6rem;
+}
+
+.heroLine {
+    height: 0.5vw;
+    background-color: var(--dim-gray);
+    margin-bottom: 2rem;
+}
+
+p {
+    font-size: 2rem;
+}
+
+.pBold {
+    font-weight: 700;
+}
+
+#topic {
+    font-size: 3rem;
+}
+
+
+h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+h3 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--font-color);
+    margin: 0;
+    padding: 24px 12px 0px 12px;
+}
+
+h4 {
+    font-size: 1.6rem;
+    line-height: 2rem;
+    font-weight: 600;
+    color: var(--dim-gray-light);
+    margin: 0;
+    padding: 12px 12px 0 12px;
+}
+
+.subtitle .heroLine {
+    margin: 0;
+}
+
+.myCard p {
+    padding: 0 12px 12px 12px;
+    font-size: 1.5rem;
+}
+
+.seminar-topic {
+    color: var(--font-color-darker);
+}
+
+.modalTitle {
+    padding-left: 0;
+}
+
+table {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 1rem 1rem 1rem 0;
+    text-align: left;
+}
+
+.dayDialog table, .dayDialog th, .dayDialog td {
+    border: 5px solid var(--coffee);
+    border-collapse: collapse;
+}
+
+.tabCenter {
+    text-align: center;
+}
+
+.modalText {
+    font-size: 1.2rem;
+    margin: 2rem 0;
+}
+
+input {
+    color: var(--dim-gray-light);
+    padding: 0.5rem;
+    background-color: var(--coffee);
+    border: none;
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
+input::placeholder {
+    color: var(--dim-gray-light);
+}
+
+input:focus {
+    outline: none;
+}
+
+.contactComponent > h3 {
+    padding: 1rem 0;
+    font-size: 2rem;
+    font-weight: normal;
+    text-decoration: underline;
+}
+
+footer h3, footer h4, footer a {
+    color: rgba(225,225,225,1);
+    padding: 0;
+}
+.footerLine {
+    height: 0.2rem;
+    background-color: rgba(225,225,225,1);
+    margin: 1.2rem 0;
+}
+
+footer a {
+    display: block;
+    font-size: 1.5rem;
+    padding: 0.3rem 0;
+    text-decoration: none;
+    color: var(--font-color);
+}
+
+#footerInfo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 2rem;
+    justify-items: center;
+    padding: 0 2rem 2rem 2rem;
+}
+
+#footerImg {
+    width: 80%;
+    height: auto;
+}
+
+/*  ================================================================
+    Layout
+    ================================================================ */
+body {
+    background-color: var(--background-color);
+}
+
+header {
+    display: grid;
+    grid-template-columns: 1vw auto 1vw;
+    grid-template-rows: 48% auto;
+    background-image: linear-gradient(180deg, transparent 70%, var(--background-color) 100%),
+    url('hero_from_engin_akyurt.jpg');
+    background-size: cover;
+    background-position: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+}
+
+.heroItem {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: center;
+}
+
+.nav-item {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all ease 0.4s;
+}
+
+.nav-item:hover {
+    background-color: var(--dim-gray);
+    box-shadow: 0.8rem 0.8rem 16px rgba(0, 0, 0, 0.2);
+}
+
+.heroInfo {
+    display: grid;
+    height: 100%;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+}
+
+
+#speakers {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    margin: 1rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: 1fr auto;
+}
+
+.title > h1 {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.title > .heroLine {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.subtitle {
+    margin: 1rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: 1fr auto;
+}
+
+.subtitle > h2 {
+    font-size: 3rem;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.subtitle > .heroLine {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.myCardLayout {
+    display: grid;
+    width: 96%;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    margin: 2rem auto;
+}
+
+.myCard {
+    background-color: var(--coffee);
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all ease 0.4s;
+}
+
+.myCard:hover {
+    transform: scale(1.02);
+}
+
+.myCard img {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    filter: grayscale(10%);
+}
+
+.cardBar {
+    width: 100%;
+    height: 8rem;
+    background: linear-gradient(180deg, var(--dim-gray), var(--sonic-silver));
+    display: flex;
+    margin-top: auto;
+    border-radius: 0 0 4px 4px;
+}
+
+.timeTable {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    justify-items: center;
+}
+
+.dayWithHeader {
+    margin: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.day {
+    align-self: start;
+    margin-left: 2rem;
+    margin-top: 1rem;
+    display: grid;
+    grid-template-rows: repeat(6, auto);
+    background-color: var(--coffee);
+    width: 1rem;
+    border-top: 5rem solid var(--coffee);
+    border-bottom: 5rem solid var(--coffee);
+    grid-gap: 10rem;
+}
+
+
+.event {
+    display: grid;
+    min-width: 20rem;
+    grid-template-columns: auto auto;
+    grid-gap: 2rem;
+    align-items: center;
+}
+
+.part {
+    background-color: black;
+    padding: 0.5rem 2rem;
+    margin-left: -1.5rem;
+    transition: all ease 0.4s;
+}
+
+.eventInfo {
+    transition: all ease 0.4s;
+}
+
+.event:hover {
+    cursor: pointer;
+}
+
+.event:last-child:hover, .event:nth-child(2) {
+    cursor: default;
+}
+
+.event:hover > .part {
+    background-color: var(--dim-gray);
+    box-shadow: 0.8rem 0.8rem 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.5);
+}
+
+.event:hover > .eventInfo {
+    transform: scale(1.2) translateX(1rem);
+}
+
+.modalDialog {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.modalDialog:target { /* when we click the button, we activate the :target state */
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modalDialog > div {
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--background-color);
+    width: 55%;
+    margin: 5% auto;
+    border-radius: 4px;
+    padding: 3rem 6rem;
+    position: relative; /* the positioning of this div is not relative, but the positioning of its' contents are relative to this div */
+}
+
+#location {
+    display: grid;
+    grid-template-columns: 10fr 5fr 5fr;
+    grid-template-rows: 1fr auto 1fr;
+    grid-template-areas: 'img address contact' 'img info contact' 'img map contact';
+    gap: 3rem;
+    min-height: 48rem;
+    margin: 2rem;
+    line-height: 2rem;
+}
+
+.contactComponent {
+    border-radius: 5%;
+    background-color: var(--coffee);
+    padding: 1rem;
+}
+
+#hotelImage  {
+    grid-area: img;
+}
+
+#hotelAddress  {
+    grid-area: address;
+    background-color: var(--coffee);
+}
+
+#hotelInfo {
+    grid-area: info;
+    padding: 2rem;
+}
+
+.contactComponent > p{
+    font-size: 1.5rem;
+}
+
+
+#hotelMap {
+    grid-area: map;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 0;
+    background-color: var(--sonic-silver);
+    color: white;
+}
+
+#contact {
+    grid-area: contact;
+    border-radius: 5%;
+}
+
+footer {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background-color: var(--coffee);
+}
+
+
+#hotelImage{
+    background-image: url('KailaBeach1.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+    animation: background;
+    animation-duration: 4s;
+    animation-delay: 4s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes background {
+    from {background-image: url("KailaBeach1.jpg");}
+    to {background-image: url("KailaBeach2.jpg");}
+}
+
+#map{
+    background-image: url('hotel_map.png');
+    background-position: center;
+    height: 100%;
+    border-radius: 5% 5% 0 0;
+}
+
+#mapText {
+    padding: 1rem;
+}
+
+/* Style all font awesome icons */
+.fa {
+    padding: 20px;
+    height: 10%;
+    width: 10%;
+    color: red;
+    text-align: center;
+    text-decoration: none;
+}
+
+.fa:hover {
+    opacity: 0.7;
+    transition: all ease 0.4s;
+    transform: scale(1.2);
+}
+
+/* Facebook */
+.fa-facebook {
+    color: white;
+}
+
+.fa-facebook:hover{
+    color: #3B5998;
+}
+
+/* Twitter */
+.fa-twitter {
+    color: white;
+}
+
+.fa-twitter:hover{
+    color: #55ACEE;
+}
+
+.fa-linkedin {
+    color: white;
+}
+
+.fa-linkedin:hover{
+    color: #007bb5;
+}
+
+.fa-instagram {
+    color: white;
+}
+
+.fa-instagram:hover{
+    color: #125688;
+}
+
+.fa-pinterest {
+    color: white;
+}
+
+.fa-pinterest:hover{
+    color: #cb2027;
+}
+
+.fa-foursquare {
+    color: white;
+}
+
+.fa-foursquare:hover{
+    color: #45bbff;
+}
+
+#socialLinks {
+    display: flex;
+    justify-content: space-evenly;
+    width: 80vw;
+    margin: 0 auto;
+    align-items: center;
+}
+
+#socialLinks > li {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all ease 0.4s;
+}
+
+
+/*  ================================================================
+    Links, Buttons, Navigation
+    ================================================================ */
+
+nav {
+    background-color: var(--coffee);
+    height: 6vmin;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 0;
+    z-index: 999;
+    display: flex;
+}
+
+a {
+    color: var(--font-color);
+    text-decoration: none;
+}
+
+.myButton {
+    font-size: 2rem;
+    background-color: var(--sonic-silver);
+    padding: 1.8vh 2.5vw;
+    margin: auto;
+    font-weight: 700;
+    border-radius: 0.4rem;
+    box-shadow: 0.4rem 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+    transition: all ease 0.4s;
+}
+
+.modelButton {
+    background-color: var(--coffee);
+}
+
+
+.myButton:hover {
+    background-color: var(--dim-gray);
+    box-shadow: 0.8rem 0.8rem 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+}
+
+button.cardButton {
+    border: none;
+    background-color: var(--van-dyke-brown);
+    color: var(--font-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+    padding: 1.8rem 2.5rem;
+    border-radius: 4px;
+    margin: auto;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all ease 0.4s;
+}
+
+button.cardButton:hover {
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2);
+    color: var(--font-color-darker);
+    transform: scale(1.05);
+}
+
+.closeButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: black;
+    color: rgba(255, 255, 255, 1);
+    font-size: 20px;
+    font-weight: 700;
+    text-decoration: none;
+    width: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-bottom-left-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    background-color: var(--coffee);
+}
+
+/*  ================================================================
+    Responsive Elements
+    ================================================================ */
+
+
+ /* Media Query for Mobile Devices */
+@media (max-width: 480px) {
+    li {
+        font-size: 1.1rem;
+    }
+
+    li > a {
+        font-size: 1rem;
+    }
+
+    .modalDialog > div {
+        width: 95%;
+        margin: 10% auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .timeTable {
+        grid-template-columns: 1fr;
+    }
+
+    header {
+        grid-template-columns: 1fr auto 1fr;
+        margin-top: -5rem;
+        margin-bottom: 1rem;
+    }
+
+    h1 {
+        font-size: 3rem;
+    }
+
+    #topic {
+        font-size: 2.5rem;
+    }
+
+    p {
+        font-size: 2rem;
+    }
+
+    .myButton {
+        font-size: 2rem;
+    }
+
+    .heroTextBox {
+        margin: 0 auto;
+        width: 80%;
+    }
+
+    .myCardLayout {
+        grid-template-columns: repeat(1, 1fr);
+        margin: 1rem auto;
+    }
+
+    .myCard:hover {
+        transform: scale(1.01);
+    }
+
+    #location {
+        display: grid;
+        grid-template-columns: 10fr 10fr;
+        grid-template-rows: 4fr 1fr 1fr auto;
+        grid-template-areas: 'img img' 'address info' 'map info' 'contact contact';
+        gap: 3rem;
+        min-height: 48rem;
+        margin: 1.5rem;
+        line-height: 2rem;
+    }
+
+    footer a {
+        font-size: 1.1rem;
+        padding: 0.1rem 0;
+    }
+    #footerImg {
+        width: 75%;
+    }
+
+    #footerInfo {
+        grid-gap: 1rem;
+        padding: 0 1rem 1rem 1rem;
+    }
+}
+
+/* Media Query for low resolution  Tablets, Ipads */
+@media (min-width: 481px) and (max-width: 767px) {
+    li {
+        font-size: 1.4rem;
+    }
+
+    li > a {
+        font-size: 1.1rem;
+    }
+
+    .modalDialog > div {
+        width: 80%;
+        margin: 10% auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .timeTable {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    header {
+        grid-template-columns: 1fr auto 1fr;
+        margin-top: -5rem;
+    }
+
+    h1 {
+        font-size: 3.4rem;
+    }
+
+    #topic {
+        font-size: 3rem;
+    }
+
+    p {
+        font-size: 2rem;
+    }
+
+    .myButton {
+        font-size: 2rem;
+    }
+
+    .heroTextBox {
+        margin: 0 auto;
+        width: 80%;
+    }
+
+    .myCardLayout {
+        grid-template-columns: repeat(1, 1fr);
+        margin: 1rem auto;
+    }
+
+    .myCard:hover {
+        transform: scale(1.01);
+    }
+
+    #location {
+        display: grid;
+        grid-template-columns: 10fr 10fr;
+        grid-template-rows: 4fr 1fr 1fr auto;
+        grid-template-areas: 'img img' 'address info' 'map info' 'contact contact';
+        gap: 3rem;
+        min-height: 48rem;
+        margin: 1.5rem;
+        line-height: 2rem;
+    }
+
+    footer a {
+        font-size: 1.2rem;
+        padding: 0.2rem 0;
+    }
+
+    #footerImg {
+        width: 75%;
+        min-width: 100px;
+    }
+
+    #footerInfo {
+        grid-gap: 1rem;
+        padding: 0 1rem 1rem 1rem;
+    }
+
+}
+
+/* Media Query for Tablets Ipads portrait mode */
+@media (min-width: 768px) and (max-width: 1024px) {
+    li {
+        font-size: 1.8rem;
+    }
+
+    .modalDialog > div {
+        width: 70%;
+        margin: 8% auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .timeTable {
+        grid-template-columns: 1fr 1fr;
+        justify-items: center;
+    }
+
+    header {
+        grid-template-columns: 1fr auto 1fr;
+        margin-top: -2rem;
+        margin-bottom: 1rem;
+    }
+
+    h1 {
+        font-size: 3.5rem;
+    }
+
+    #topic {
+        font-size: 3rem;
+    }
+
+    p {
+        font-size: 2rem;
+    }
+
+    .myButton {
+        font-size: 2rem;
+    }
+
+    .myCard:hover {
+        transform: scale(1.01);
+    }
+
+    .myCardLayout {
+        grid-template-columns: repeat(2, 1fr);
+        margin: 1rem auto;
+    }
+
+    #location {
+        display: grid;
+        grid-template-columns: 10fr 10fr;
+        grid-template-rows: 5fr 1fr auto 1fr;
+        grid-template-areas: 'img img' 'address contact' 'info contact' 'map contact';
+        gap: 3rem;
+        min-height: 48rem;
+        margin: 2rem;
+        line-height: 2rem;
+    }
+
+    li > a {
+        font-size: 1.5rem;
+    }
+
+    #footerInfo {
+        grid-gap: 1.5rem;
+        padding: 0 1.5rem 1.5rem 1.5rem;
+    }
+}

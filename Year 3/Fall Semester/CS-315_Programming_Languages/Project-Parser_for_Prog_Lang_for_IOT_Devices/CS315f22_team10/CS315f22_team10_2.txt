@@ -1,0 +1,83 @@
+// Unmatched Parenthesis
+int a = funCall());
+
+// Switch must be integer based data
+changeSwitchStateAndControlActuator(1.4);
+
+// Var type is not defined
+var varname;
+
+// Function Definition Inside Function is Not Allowed
+fun funName(){
+	fun funName(){
+		print("adasdsa");
+	}
+}
+
+// bool values do not have int values
+bool a = true < 15;
+
+// int values do not have default bool values
+int b = 15 && false;
+
+// Built-in method should not have arguments
+conn.getDataFromConn(15);
+getTimestamp(20);
+
+// Built-in method should have arguments
+conn.sendDataByConn();
+
+// For loop have a specific order
+for(i = i + 1; int b = 10; i < 10){}
+
+// if should have expression between parenthesis
+if(){}
+
+// Some other examples that the language not allows
+int x}
+int ( x = 1);
+int int = 102;
+function1()();
+function1(){
+    return;
+}
+
+funtion() {
+    return 21;
+}
+
+fun function() {
+    return = 1;
+}
+
+for {
+
+}
+
+for ( ; true) {
+
+}
+for ( true 😉 {
+
+}
+for ( true ; ; ) {
+
+}
+for ( ; ; true) {
+
+}
+for ( true ; ; true) {
+
+} 
+
+int a;
+
+while {
+
+}
+
+int a;
+
+else {
+	
+}
