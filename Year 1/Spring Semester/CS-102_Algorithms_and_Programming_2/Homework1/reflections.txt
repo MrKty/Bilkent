@@ -1,0 +1,45 @@
+CS-102 Section-1
+
+Ömer Oktay Gültekin 21901413
+
+15/02/2021
+
+Time Estimation for combine the pieces and get the whole program working : 2.5 hours
+
+Time Estimation for additional works : 1.5 hours
+
+Status of my piece of code:  Working
+
+
+Firstly, I started to select random codes from all the tasks and place the Hangman class's pieces where they were supposed to be. Errors happened in this stage, mostly because of not obeying documentation rules.
+
+Difficulties when combining the pieces and how I fix them:
+
+1) Some groups use different variable names than documentation, which caused a problem in some methods. Therefore, I needed to change all occurrences of these variables. 
+
+2) Ambiguous variable names. I need to understand why they are used.
+
+3) Lots of error in the constructor. They wrote this piece of code:
+	this.a = ( int ) ( Math.random() * 3 );
+	this.secret = WORDS[a];
+	this.secret = chooseSecretWord();
+where a is an instance variable. First of all they assign secretWord twice. Next, they do not use correct variable name for secret word which is secretWord. Finally, variable ‘a’ is unnecessary and ambiguous. In the second part of the constructor, they initialize instance variables with getter methods, which means they use getters without assigning anything yet and trying to assign null into the variable.
+Therefore, I needed to change the constructor completely.
+
+4) Inefficient getter methods. They declared local String variable, and with for loop, they add letters one by one instead of calling toString() method of string buffer. Therefore, I deleted the first part and call just the toString() method.
+
+5) Wrong parameter list of the method and declaring the instance method with the static keyword. For tryThis method, they pass 3 parameters even though it is explicitly indicated in the documentation that it should have 1 parameter, and also they define tryThis method as a static method. Therefore, I needed to write all implementation on my own.
+
+6) Wrong implementation of the hasLost method. I noticed it when my game was ended after one more incorrect try. I found that they compared if numberOfIncorrectTries greater than maxAllowedIncorrectTries, which should normally seek equality.
+
+Additional works:
+
+1) I defined chooseSecretWordFromFile() method. For this, I found a list of words from the internet and assign one of the random words from this file. To do this, I needed to learn RandomAccessFile class and its methods.
+
+2) I realized that the words and letters are case-sensitive in the game. Therefore, wherever I work with letters or words, I call the toLowerCase() method to make game case-insensitive. 
+
+3) I wanted to add the functionality of getting the word from the Internet. Therefore, I found a free dictionary API. Then, with the HttpResponse and HttpRequest class's help, I connected to the server and got a JSON of a random word. Because I need just a word itself, I use the String class's split() method to get the word instead of fully parse a JSON. In some of the words from the Internet, there were ‘ ’ and ‘-’ characters. Therefore, I needed to use regex and get the specified length of the word which has english letters only. Finally, I found that getting the word from the server can take too much time. Therefore, I added a code for the connection time out after about 5 seconds. 
+
+The lesson I learned from this homework:
+
+Changing variable types for a better fit in the program can ruin the functionality of some other piece of the codes written by project members; This problem only is solved in future projects by whether the documentation is wrong or right or further developed, being always consistent with documentation.
