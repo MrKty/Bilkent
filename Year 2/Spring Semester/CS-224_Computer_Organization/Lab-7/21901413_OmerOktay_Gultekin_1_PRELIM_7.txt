@@ -1,0 +1,181 @@
+CS224
+Lab No. 7
+Section No. 1
+Full Name: Omer Oktay Gultekin
+Bilkent ID: 21901413
+Date: 09.05.2022
+
+Part 1-A, Special Function Registers for the I/O Devices involved in Part2-b:
+SFRs for input:
+TRISE => To specify PORTE as inputs which will be connected to the push buttons via wire
+PORTE => To get and use inputs from push buttons
+SFRs for output:
+TRISA => To specify PORTA as outputs which will be connected to the DC MOTOR
+PORTA => Output port which will be used to change the direction of the DC Motor
+
+Part 1-B, C code for DC Motor:
+/*
+Attention!
+Configuration  for DC Motor project :
+
+Connect portA to DC Motor
+Jumpers of portA are : 5V, pull up ( both of the to the left side )
+
+Connect portE to push-buttons
+Jumpers of portE are : 3V, pull up ( top one to right, other to left )
+*/
+
+void main() {
+
+    AD1PCFG = 0xFFFF;  // All pins will be digital I/O with this configuration
+
+    JTAGEN_bit = 0;    // Disable JTAG as it will not be used
+
+    TRISE = 0XFFFF;    //portE is inputs to read push-buttons.
+    TRISA = 0x0000;    //portA is output to change direction of DC Motor.
+
+    // Reset Ports (We use pull up configuration which make ports in high state by default.
+    // We should make buttons not pressed in the beginning)
+    PORTE = 0;     // Button Reset
+    do {
+        // From schematics, CONTROL1 and CONTROL2 in J4 coincides with RA1 and RA2 of Port A.
+        // Therefore, RA1 and RA2 will be assigned from the input of push buttons.
+        // RA1 (CONTROL1) for turn in counterclockwise, RA2 (CONTROL2) for turn in clockwise
+        // RA1 = button 0, RA2 = button 1, in all times both of them must be assigned and if they are both 1, motor will be in active brake.
+        PORTAbits.RA1 = PORTEbits.RE0;
+        PORTAbits.RA2 = PORTEbits.RE1;
+    } while (1); // To run program infinitely
+
+}// end of main
+
+Part 1-C, Special Function Registers for the I/O Devices involved in Part2-c:
+SFRs for input:
+TRISE => To specify PORTE as outputs which will be connected to J2 of the 7 seg display which configures ANs
+PORTE => Output port to specify which segment is on in certain time
+SFRs for output:
+TRISA => To specify PORTA as outputs which will be connected to J1 of the 7 seg display which configures CTRL_A-G
+PORTA => Output port which will be used to specify the numbers will be displayed at the on segment
+
+Part 1-D, C code for Seven Segment Module:
+/*
+Configuration for the code below:
+
+Connect portA to J1 Port of 4 Digit Seven Segment Module
+Jumpers of portA are : 5V, pull down ( top one to left, other to right )
+
+Connect portE to J2 Port of 4 Digit Seven Segment Module
+Jumpers of portE are : 5V, pull down ( top one to left, other to right )
+
+*/
+// --- --- --- ---
+// | | | | | | | |
+// --- --- --- ---
+// | | | | | | | |
+// --- --- --- ---
+// AN1 AN2 AN3 AN4, J2 pins in order: 1 10 2 9,
+// Corresponding values in order 0x01, 0x02, 0x04, 0x08
+int number;
+int displayedNumber;
+int i;
+int j;
+// Hexadecimal values for digits in 7 segment (1-9, 0 will not be used)
+unsigned char binary_pattern[]={0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F};
+void main() {
+
+    AD1PCFG = 0xFFFF;      // Configure AN pins as digital I/O
+    JTAGEN_bit = 0;        // Disable JTAG
+
+    // Configure Ports as output, though it is default behaviour
+    TRISA = 0x00;   // PortA is output to D
+    TRISE = 0X00;     // PortE is output to AN
+
+    number = 0; // Index 0 has 1, Index 1 2 etc.
+
+    while (1) {
+        for (j = 0; j <
+                        250; j++) { // Following code will delay 4 ms in total. If we repeat the code 250 times, the same digits will be shown approximately 1 seconds
+            for (i = 0; i < 4; i++) {
+                displayedNumber = (number + i) % 9;     // Increment and check overflow (max index is 8)
+                PORTA = binary_pattern[displayedNumber]; // Put next number into the segment to be opened in next line
+                PORTE = 0b1000 >> i;             // 0b1000 first digit from right, 0b0100 second digit from right 0b0010 third and 0b0001 fourth digits
+                Delay_ms(1);                 // 1 ms delay before opening next AN
+            } // end of 1 times showing the numbers
+        } // end of 250 times showing the numbers
+        number = (number + 1) % 9;             // Increment and check overflow (max index is 8)
+    }
+}//main
+
+Part 1-E, Special Function Registers for the I/O Devices involved in Part2-d:
+SFRs for input:
+TRISE => To specify PORTE as inputs which will be connected to the push buttons via wire
+PORTE => To get and use inputs from push buttons
+SFRs for output:
+TRISA => To specify PORTA as outputs which will be connected to the Leds
+PORTA => Output port which will be used to blink the corresponding leds
+
+Part 1-F, C code for Digital Counter Module:
+/*
+Attention!
+Configuration  for Digital Counter project :
+
+Connect portA to LEDs
+Jumpers of portA are : 5V, pull up ( both of the to the left side )
+
+Connect portE to push-buttons
+Jumpers of portE are : 3V3, pull up ( top one to right, other to left )
+*/
+
+#include <stdbool.h>
+int counter;
+bool direction;
+int i;
+void main() {
+
+    AD1PCFG = 0xFFFF;  // Configure AN pins as digital I/O
+
+    DDPCON.JTAGEN = 0; // disable JTAG
+
+    TRISA = 0x0000;  // PortA is output to turn on LEDs.
+    TRISE = 0XFFFF;  // PortE is inputs to read push-buttons.
+
+    counter = 1;
+    // Reset Ports (We use pull up configuration which make ports in high state by default.
+    // We should make buttons not pressed and leds not turn on in the beginning)
+    PORTE = 0;     // Button Reset
+    PORTA = 0;     // LED Reset
+
+    direction = false; // direction = true => right to left, direction = false => left to right (from the page's point of view)
+    while (1) {
+        if (!direction) {
+            PORTA = counter; // PORTA pins coincides with counter bits
+        } else if (direction) {
+            // The only way is the cross matching the digits since it is not the circular shift but mirror reflection of the other counter
+            PORTAbits.RA7 = (counter >> 0) & 1; // first binary digit
+            PORTAbits.RA6 = (counter >> 1) & 1; // second binary digit
+            PORTAbits.RA5 = (counter >> 2) & 1; // third binary digit
+            PORTAbits.RA4 = (counter >> 3) & 1; // fourth binary digit
+            PORTAbits.RA3 = (counter >> 4) & 1; // fifth binary digit
+            PORTAbits.RA2 = (counter >> 5) & 1; // sixth binary digit
+            PORTAbits.RA1 = (counter >> 6) & 1; // seventh binary digit
+            PORTAbits.RA0 = (counter >> 7) & 1; // eighth binary digit
+        }
+        counter = counter + 1; // Increment the counter
+        // Push Button 0 (RE0) = left to right direction, Push Button 1 (RE1) = right to left direction
+        // Push Button 2 (RE2) = Reset
+        // The design choice is when user change the direction, do not reset the counter if he not press the reset button as well
+        // The leds continue blinking different from seven segment displays, but buttons are needed to be checked multiple times for the next iteration
+        // Button check intervals will be 1 ms and for RE1 and RE0, the last pressed will be valid.
+        // If they both pressed at the same time, default direction is left to right.
+        for (i = 0; i < 1000; i++) {
+            if (portEbits.RE1) {
+                direction = false;
+            } else if (portEbits.RE0) {
+                direction = true;
+            }
+            if (portEbits.RE2) {
+                counter = 0;
+            }
+            Delay_ms(1); // Wait 1 ms
+        }
+    }
+}//main

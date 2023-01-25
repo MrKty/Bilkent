@@ -1,0 +1,206 @@
+#include <iostream>
+
+#include "BinarySearchTree.h"
+#include "analyze.h"
+using namespace std;
+
+int main() {
+
+    analyzeBST();
+
+
+
+    BinarySearchTree binarySearchTree;
+    binarySearchTree.add(4);
+    binarySearchTree.add(2);
+    binarySearchTree.add(1);
+    binarySearchTree.add(3);
+    binarySearchTree.add(8);
+    binarySearchTree.add(6);
+    binarySearchTree.add(5);
+    binarySearchTree.add(7);
+    binarySearchTree.add(9);
+    binarySearchTree.inorderTraverse();
+    binarySearchTree.remove(4);
+    binarySearchTree.remove(2);
+    binarySearchTree.remove(1);
+    binarySearchTree.remove(3);
+    binarySearchTree.remove(8);
+    binarySearchTree.remove(6);
+    binarySearchTree.inorderTraverse();
+    binarySearchTree.remove(5);
+    binarySearchTree.remove(7);
+    binarySearchTree.remove(9);
+    cout << "adasd" << endl;
+    cout << binarySearchTree.isEmpty() << endl;
+    cout << binarySearchTree.getHeight() << endl;
+    cout << binarySearchTree.getNumberOfNodes() << endl;
+    cout << binarySearchTree.contains(100) << endl;
+    binarySearchTree.inorderTraverse();
+    cout << binarySearchTree.count(35,45) << endl;
+    cout << binarySearchTree.select(10) << endl;
+    cout << binarySearchTree.successor(10) << endl;
+    binarySearchTree.add(50);
+    binarySearchTree.add(20);
+    binarySearchTree.add(90);
+    binarySearchTree.add(10);
+    binarySearchTree.add(30);
+    binarySearchTree.add(70);
+    binarySearchTree.add(60);
+    binarySearchTree.add(80);
+    cout << "empty: " << binarySearchTree.isEmpty() << endl;
+    cout << "successor 10: " << binarySearchTree.successor(10) << endl;
+    cout << "successor 20: " << binarySearchTree.successor(20) << endl;
+    cout << "successor 30: " << binarySearchTree.successor(30) << endl;
+    cout << "successor 50: " << binarySearchTree.successor(50) << endl;
+    cout << "successor 90: " << binarySearchTree.successor(90) << endl;
+    cout << "successor 70: " << binarySearchTree.successor(70) << endl;
+    cout << "successor 60: " << binarySearchTree.successor(60) << endl;
+    cout << "successor 80: " << binarySearchTree.successor(80) << endl;
+    cout << "successor 100: " << binarySearchTree.successor(100) << endl;
+
+    cout << "Height: " << binarySearchTree.getHeight() << endl;
+    cout << "Num of Nodes: " << binarySearchTree.getNumberOfNodes() << endl;
+    cout << "Contains 10: "<< binarySearchTree.contains(10) << endl;
+    cout << "Contains 20: "<< binarySearchTree.contains(20) << endl;
+    cout << "Contains 30: "<< binarySearchTree.contains(30) << endl;
+    cout << "Contains 40: "<< binarySearchTree.contains(40) << endl;
+    cout << "Contains 50: "<< binarySearchTree.contains(50) << endl;
+    cout << "Contains 60: "<< binarySearchTree.contains(60) << endl;
+    cout << "Contains 70: "<< binarySearchTree.contains(70) << endl;
+    cout << "Contains 80: "<< binarySearchTree.contains(80) << endl;
+    cout << "Contains 90: "<< binarySearchTree.contains(90) << endl;
+    cout << "Contains 0: "<< binarySearchTree.contains(0) << endl;
+    binarySearchTree.inorderTraverse();
+    cout << "getWidth: " << binarySearchTree.getWidth() << endl;
+    cout << "count: " << binarySearchTree.count(35,45) << endl;
+    cout << "select: 10 " << binarySearchTree.select(10) << endl;
+    cout << "select: 20 " << binarySearchTree.select(20) << endl;
+    cout << "select: 30 " << binarySearchTree.select(30) << endl;
+    cout << "select: 40 " << binarySearchTree.select(40) << endl;
+    cout << "select: 50 " << binarySearchTree.select(50) << endl;
+    cout << "select: 60 " << binarySearchTree.select(60) << endl;
+    cout << "select: 70 " << binarySearchTree.select(70) << endl;
+    cout << "select: 80 " << binarySearchTree.select(80) << endl;
+    cout << "select: 90 " << binarySearchTree.select(90) << endl;
+    cout << "select: 0 " << binarySearchTree.select(0) << endl;
+
+    cout << "Delete 10:" << endl;
+    binarySearchTree.remove(10);
+    cout << "empty: " << binarySearchTree.isEmpty() << endl;
+    cout << "successor 10: " << binarySearchTree.successor(10) << endl;
+    cout << "successor 20: " << binarySearchTree.successor(20) << endl;
+    cout << "successor 30: " << binarySearchTree.successor(30) << endl;
+    cout << "successor 50: " << binarySearchTree.successor(50) << endl;
+    cout << "successor 90: " << binarySearchTree.successor(90) << endl;
+    cout << "successor 70: " << binarySearchTree.successor(70) << endl;
+    cout << "successor 60: " << binarySearchTree.successor(60) << endl;
+    cout << "successor 80: " << binarySearchTree.successor(80) << endl;
+    cout << "successor 100: " << binarySearchTree.successor(100) << endl;
+
+    cout << "Height: " << binarySearchTree.getHeight() << endl;
+    cout << "Num of Nodes: " << binarySearchTree.getNumberOfNodes() << endl;
+    cout << "Contains 10: "<< binarySearchTree.contains(10) << endl;
+    cout << "Contains 20: "<< binarySearchTree.contains(20) << endl;
+    cout << "Contains 30: "<< binarySearchTree.contains(30) << endl;
+    cout << "Contains 40: "<< binarySearchTree.contains(40) << endl;
+    cout << "Contains 50: "<< binarySearchTree.contains(50) << endl;
+    cout << "Contains 60: "<< binarySearchTree.contains(60) << endl;
+    cout << "Contains 70: "<< binarySearchTree.contains(70) << endl;
+    cout << "Contains 80: "<< binarySearchTree.contains(80) << endl;
+    cout << "Contains 90: "<< binarySearchTree.contains(90) << endl;
+    cout << "Contains 0: "<< binarySearchTree.contains(0) << endl;
+    binarySearchTree.inorderTraverse();
+    cout << "getWidth: " << binarySearchTree.getWidth() << endl;
+    cout << "count: " << binarySearchTree.count(35,45) << endl;
+    cout << "select: 10 " << binarySearchTree.select(10) << endl;
+    cout << "select: 20 " << binarySearchTree.select(20) << endl;
+    cout << "select: 30 " << binarySearchTree.select(30) << endl;
+    cout << "select: 40 " << binarySearchTree.select(40) << endl;
+    cout << "select: 50 " << binarySearchTree.select(50) << endl;
+    cout << "select: 60 " << binarySearchTree.select(60) << endl;
+    cout << "select: 70 " << binarySearchTree.select(70) << endl;
+    cout << "select: 80 " << binarySearchTree.select(80) << endl;
+    cout << "select: 90 " << binarySearchTree.select(90) << endl;
+    cout << "select: 0 " << binarySearchTree.select(0) << endl;
+
+    cout << "Delete 50:" << endl;
+    binarySearchTree.remove(50);
+    cout << "empty: " << binarySearchTree.isEmpty() << endl;
+    cout << "successor 10: " << binarySearchTree.successor(10) << endl;
+    cout << "successor 20: " << binarySearchTree.successor(20) << endl;
+    cout << "successor 30: " << binarySearchTree.successor(30) << endl;
+    cout << "successor 50: " << binarySearchTree.successor(50) << endl;
+    cout << "successor 90: " << binarySearchTree.successor(90) << endl;
+    cout << "successor 70: " << binarySearchTree.successor(70) << endl;
+    cout << "successor 60: " << binarySearchTree.successor(60) << endl;
+    cout << "successor 80: " << binarySearchTree.successor(80) << endl;
+    cout << "successor 100: " << binarySearchTree.successor(100) << endl;
+
+    cout << "Height: " << binarySearchTree.getHeight() << endl;
+    cout << "Num of Nodes: " << binarySearchTree.getNumberOfNodes() << endl;
+    cout << "Contains 10: "<< binarySearchTree.contains(10) << endl;
+    cout << "Contains 20: "<< binarySearchTree.contains(20) << endl;
+    cout << "Contains 30: "<< binarySearchTree.contains(30) << endl;
+    cout << "Contains 40: "<< binarySearchTree.contains(40) << endl;
+    cout << "Contains 50: "<< binarySearchTree.contains(50) << endl;
+    cout << "Contains 60: "<< binarySearchTree.contains(60) << endl;
+    cout << "Contains 70: "<< binarySearchTree.contains(70) << endl;
+    cout << "Contains 80: "<< binarySearchTree.contains(80) << endl;
+    cout << "Contains 90: "<< binarySearchTree.contains(90) << endl;
+    cout << "Contains 0: "<< binarySearchTree.contains(0) << endl;
+    binarySearchTree.inorderTraverse();
+    cout << "getWidth: " << binarySearchTree.getWidth() << endl;
+    cout << "count: " << binarySearchTree.count(35,45) << endl;
+    cout << "select: 10 " << binarySearchTree.select(10) << endl;
+    cout << "select: 20 " << binarySearchTree.select(20) << endl;
+    cout << "select: 30 " << binarySearchTree.select(30) << endl;
+    cout << "select: 40 " << binarySearchTree.select(40) << endl;
+    cout << "select: 50 " << binarySearchTree.select(50) << endl;
+    cout << "select: 60 " << binarySearchTree.select(60) << endl;
+    cout << "select: 70 " << binarySearchTree.select(70) << endl;
+    cout << "select: 80 " << binarySearchTree.select(80) << endl;
+    cout << "select: 90 " << binarySearchTree.select(90) << endl;
+    cout << "select: 0 " << binarySearchTree.select(0) << endl;
+
+    cout << "Delete 80:" << endl;
+    binarySearchTree.remove(80);
+    cout << "empty: " << binarySearchTree.isEmpty() << endl;
+    cout << "successor 10: " << binarySearchTree.successor(10) << endl;
+    cout << "successor 20: " << binarySearchTree.successor(20) << endl;
+    cout << "successor 30: " << binarySearchTree.successor(30) << endl;
+    cout << "successor 50: " << binarySearchTree.successor(50) << endl;
+    cout << "successor 90: " << binarySearchTree.successor(90) << endl;
+    cout << "successor 70: " << binarySearchTree.successor(70) << endl;
+    cout << "successor 60: " << binarySearchTree.successor(60) << endl;
+    cout << "successor 80: " << binarySearchTree.successor(80) << endl;
+    cout << "successor 100: " << binarySearchTree.successor(100) << endl;
+
+    cout << "Height: " << binarySearchTree.getHeight() << endl;
+    cout << "Num of Nodes: " << binarySearchTree.getNumberOfNodes() << endl;
+    cout << "Contains 10: "<< binarySearchTree.contains(10) << endl;
+    cout << "Contains 20: "<< binarySearchTree.contains(20) << endl;
+    cout << "Contains 30: "<< binarySearchTree.contains(30) << endl;
+    cout << "Contains 40: "<< binarySearchTree.contains(40) << endl;
+    cout << "Contains 50: "<< binarySearchTree.contains(50) << endl;
+    cout << "Contains 60: "<< binarySearchTree.contains(60) << endl;
+    cout << "Contains 70: "<< binarySearchTree.contains(70) << endl;
+    cout << "Contains 80: "<< binarySearchTree.contains(80) << endl;
+    cout << "Contains 90: "<< binarySearchTree.contains(90) << endl;
+    cout << "Contains 0: "<< binarySearchTree.contains(0) << endl;
+    binarySearchTree.inorderTraverse();
+    cout << "getWidth: " << binarySearchTree.getWidth() << endl;
+    cout << "count: " << binarySearchTree.count(35,45) << endl;
+    cout << "select: 10 " << binarySearchTree.select(10) << endl;
+    cout << "select: 20 " << binarySearchTree.select(20) << endl;
+    cout << "select: 30 " << binarySearchTree.select(30) << endl;
+    cout << "select: 40 " << binarySearchTree.select(40) << endl;
+    cout << "select: 50 " << binarySearchTree.select(50) << endl;
+    cout << "select: 60 " << binarySearchTree.select(60) << endl;
+    cout << "select: 70 " << binarySearchTree.select(70) << endl;
+    cout << "select: 80 " << binarySearchTree.select(80) << endl;
+    cout << "select: 90 " << binarySearchTree.select(90) << endl;
+    cout << "select: 0 " << binarySearchTree.select(0) << endl;
+    return 0;
+
+}

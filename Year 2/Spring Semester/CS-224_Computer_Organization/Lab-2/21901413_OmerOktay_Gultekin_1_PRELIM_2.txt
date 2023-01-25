@@ -1,0 +1,522 @@
+CS224
+Lab No. 2
+Section No. 1
+Full Name: Omer Oktay Gultekin
+Bilkent ID: 21901413
+Date: 03.03.2022
+
+
+PART A Circular Shifts
+
+
+
+	.text
+main:	la 	$a0, prompt1		# prompt to enter number to be shifted
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	addi	$s0, $v0, 0		# save number to be shifted into $s0
+	
+	la 	$a0, prompt2		# prompt to enter shift amount
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	addi	$s1, $v0, 0		# save shift amount into $s1
+	
+	la 	$a0, prompt3		# display number to be shifted in hex
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	addi	$a0, $s0, 0		# move shifted number in hex into $a0 
+	li	$v0, 34			# code for print integer in hexadecimal
+	syscall
+	
+	la 	$a0, newl		# print new line
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	la 	$a0, prompt4		# display shift amount
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	addi	$a0, $s1, 0		# move shift amount into $a0
+	li	$v0, 1			# code for print integer
+	syscall
+	
+	la 	$a0, newl		# print new line
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	la 	$a0, prompt5		# display shift direction
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	addi	$a0, $s0, 0		# move decimal number into the first parameter
+	addi	$a1, $s1, 0		# move shift amount into the second parameter
+	jal	shiftLeftCircular	# call shiftLeftCircular function
+	
+	addi	$a0, $v0, 0		# move circular left shifted number to $a0
+	li	$v0, 34			# code for print integer in hexadecimal
+	syscall
+	
+	la 	$a0, newl		# print new line
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	la 	$a0, prompt6		# display shift direction
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	addi	$a0, $s0, 0		# move decimal number into the first parameter
+	addi	$a1, $s1, 0		# move shift amount into the second parameter
+	jal	shiftRightCircular	# call shiftRightCircular function
+	
+	addi	$a0, $v0, 0		# move circular left shifted number to $a0
+	li	$v0, 34			# code for print integer in hexadecimal
+	syscall
+	
+	la 	$a0, prompt7		# ask to repeat program
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	beq	$v0, 1, main	# continue program if choice == 0
+	
+# Finish program	
+	li	$v0, 10
+	syscall
+
+
+# Performance of the below subprograms can be further developed by extracting common parts out of
+# the functions. However, this practice will restrict independence of the functions from each other.
+shiftLeftCircular:
+	addi	$sp, $sp,   -8		# make space on stack to store two register
+	sw	$s0, 4($sp)		# save $s0 on stack
+	sw	$s1, 0($sp)		# save $s1 on stack
+	
+	addi	$s0, $zero, 32		# $s0 = 32
+	sub	$s0, $s0,   $a1		# $s0 = 32 - shiftAmount
+	srlv 	$s0, $a0,   $s0		# $s0 contains data will be lost after shifting
+	sllv	$s1, $a0,   $a1		# $s1 contains normal shifted number
+	or	$v0, $s1,   $s0		# $v0 contains circular left shifted number
+	
+	lw	$s1, 0($sp)		# restore $s1 from stack
+	lw	$s0, 4($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   8		# deallocate stack space
+	jr	$ra			# return to caller
+
+shiftRightCircular:
+	addi	$sp, $sp,   -8		# make space on stack to store two register
+	sw	$s0, 4($sp)		# save $s0 on stack
+	sw	$s1, 0($sp)		# save $s1 on stack
+	
+	addi	$s0, $zero, 32		# $s0 = 32
+	sub	$s0, $s0,   $a1		# $s0 = 32 - shiftAmount
+	sllv 	$s0, $a0,   $s0		# $s0 contains data will be lost after shifting
+	srlv	$s1, $a0,   $a1		# $s1 contains normal shifted number
+	or	$v0, $s1,   $s0		# $v0 contains circular right shifted number
+	
+	lw	$s1, 0($sp)		# restore $s1 from stack
+	lw	$s0, 4($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   8		# deallocate stack space
+	jr	$ra			# return to caller
+	
+	
+	.data
+prompt1:
+	.asciiz "Enter the number to be shifted in decimal (remember 2's complement and enter neg. num. if necessary): "
+prompt2:
+	.asciiz "Enter shift amount as number of bits: "
+prompt3:
+	.asciiz "The number to be shifted is: "
+prompt4:
+	.asciiz "Shift Amount (bits): "
+prompt5:
+	.asciiz "Shift Direction: Left\nShifted Number: "
+prompt6:
+	.asciiz "Shift Direction: Right\nShifted Number: "
+prompt7:
+	.ascii "\n\nAsk again?\n"
+	.ascii "Enter 1 for continue\n"
+	.asciiz "Enter any other integer to finish program\n"
+newl:
+	.asciiz "\n"
+
+
+
+PART B Array Operations:
+
+
+
+	.text
+main:
+	menu:	la 	$a0, prompt10		# display menu
+		li 	$v0, 4			# syscall 4 prints the string
+		syscall
+		
+		li 	$v0, 5			# syscall 5 reads an integer
+		syscall
+		
+		halt:   beq	$v0, 0,     finish	# finish program
+		cont:	bne	$v0, 1,     menu	# create new array
+			jal	createArray
+			addi	$a0, $v0,   0		# $a0 = array address
+			addi	$a1, $v1,   0		# $a1 = array size
+			
+			jal	arrayOperations		# process created array
+			j	menu
+
+	# Finish program
+	finish:	
+		li	$v0, 10
+		syscall
+
+
+createArray:
+	addi	$sp, $sp,   -16		# make space on stack to store 4 register
+	sw	$s0, 12($sp)		# save $s0 on stack
+	sw	$s1, 8($sp)		# save $s1 on stack
+	sw	$s2, 4($sp)		# save $s2 on stack
+	sw	$s3, 0($sp)		# save $s3 on stack
+
+
+	la 	$a0, prompt1		# prompt to enter array size
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	addi	$s0, $v0,   0		# $s0 = array size
+	addi	$s1, $zero, 0		# $s1 = counter
+	
+	beq	$s0, $zero, end		# if size is zero
+	sll	$a0, $v0,   2		# multiply array size by 4
+	li	$v0, 9
+	syscall
+	addi	$s2, $v0,   0		# $s2 = address of the first array element
+	addi	$s3, $s2,   0		# $s3 = copy of the array beginning address
+	
+	loop1:
+		la 	$a0, prompt2	# prompt to enter next array element
+		li 	$v0, 4		# syscall 4 prints the string
+		syscall
+	
+		li 	$v0, 5		# syscall 5 reads an integer
+		syscall
+	
+		sw	$v0, 0($s2)	# store element in corresponding position
+		addi	$s2, $s2,    4	# $s1 = address of the next array element
+		addi	$s1, $s1,    1	# increase counter by 1
+		bne	$s0, $s1, loop1	# if array not full, continue
+	
+	end:
+	addi	$v0, $s3,   0		# $v0 = beginning of the array address
+	addi	$v1, $s0,   0		# $v1 = array size
+	
+	lw	$s3, 0($sp)		# restore $s3 from stack
+	lw	$s2, 4($sp)		# restore $s2 from stack
+	lw	$s1, 8($sp)		# restore $s1 from stack
+	lw	$s0, 12($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   16		# deallocate stack space
+	jr	$ra
+	
+
+arrayOperations:
+	addi	$sp, $sp,   -16		# make space on stack to store 3 register
+	sw	$s0, 12($sp)		# save $s0 on stack
+	sw	$s1, 8($sp)		# save $s1 on stack
+	sw	$s2, 4($sp)		# save $s2 on stack
+	sw	$ra, 0($sp)		# save $ra on stack
+	
+	addi	$s0, $a0, 0		# $s0 = $a0
+	addi	$s1, $a1, 0		# $s1 = $a1
+	
+	jal	display			# print given array
+	menu2:	la 	$a0, newl		# print new line
+		li 	$v0, 4			# syscall 4 prints the string
+		syscall
+		
+		la 	$a0, prompt3		# prompt menu
+		li 	$v0, 4			# syscall 4 prints the string
+		syscall
+
+		li 	$v0, 5			# syscall 5 reads an integer
+		syscall
+		
+		addi	$a0, $s0, 0		# $a0 = array address	
+		addi	$a1, $s1, 0		# $a1 = array size
+		
+		case0:  beq	$v0, 0,     end1	# end case
+		case1:	bne	$v0, 1,     case2	# min case
+			beq	$a1, $zero, menu2
+			jal 	min
+			
+			addi	$s2, $v0, 0		# $s2 = min
+			la 	$a0, prompt4		# display min element
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			
+			addi	$a0, $s2, 0		# move min value into $a0
+			li	$v0, 1			# code for print integer
+			syscall
+			
+			la 	$a0, newl		# print new line
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			
+			j	menu2
+		case2:	bne	$v0, 2,     case3	# max case
+			beq	$a1, $zero, menu2
+			jal 	max
+			
+			addi	$s2, $v0, 0		# $s2 = max
+			la 	$a0, prompt5		# display max element
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			
+			addi	$a0, $s2, 0		# move max value into $a0
+			li	$v0, 1			# code for print integer
+			syscall
+			
+			la 	$a0, newl		# print new line
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			
+			j	menu2
+		case3:	bne	$v0, 3, case4		# sum case
+			jal 	sum
+			
+			addi	$s2, $v0, 0		# $s2 = sum
+			la 	$a0, prompt6		# display sum
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			
+			addi	$a0, $s2, 0		# move sum into $a0
+			li	$v0, 1			# code for print integer
+			syscall
+			
+			la 	$a0, newl		# print new line
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			
+			j	menu2
+		case4:	bne	$v0, 4, menu2		# palindrome case
+			jal 	palindrome
+			
+			addi	$s2, $v0, 0		# $s2 = 1 for palindrome 0 otherwise
+			la 	$a0, prompt7		# display palindrome
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			
+			bne	$s2, $zero, yes		# palindrome or not
+			la 	$a0, prompt9		# display not palindrome
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			j	menu2
+			
+			yes:
+			la 	$a0, prompt8		# display is palindrome
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			j	menu2
+	end1:	
+	lw	$ra, 0($sp)		# restore $ra from stack
+	lw	$s2, 4($sp)		# restore $s2 from stack
+	lw	$s1, 8($sp)		# restore $s1 from stack
+	lw	$s0, 12($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   16		# deallocate stack space
+	jr	$ra
+
+min:
+	addi	$sp, $sp,   -16		# make space on stack to store 4 register
+	sw	$s0, 12($sp)		# save $s0 on stack
+	sw	$s1, 8($sp)		# save $s1 on stack
+	sw	$s2, 4($sp)		# save $s2 on stack
+	sw	$s3, 0($sp)		# save $s3 on stack
+	
+	lw	$s0, 0($a0)		# $s0 = min value
+	addi	$s1, $zero, 1		# $s1 = 1 = counter, we already process first one
+	loop2:	
+		beq	$s1, $a1,   end2	# check all elements processed
+		addi	$a0, $a0,   4		# $a0 = next array element address
+		addi	$s1, $s1,   1		# increment counter
+		lw	$s2, 0($a0)		# $s2 = candidate array element
+		slt 	$s3, $s2,   $s0		# $s3 = 1 if element < min
+		beq	$s3, $zero, loop2	# if true min stil min
+		addi	$s0, $s2,   0		# min = element
+		j 	loop2
+
+	end2:
+	addi	$v0, $s0, 0		# $v0 = min value
+	lw	$s3, 0($sp)		# restore $s3 from stack
+	lw	$s2, 4($sp)		# restore $s2 from stack
+	lw	$s1, 8($sp)		# restore $s1 from stack
+	lw	$s0, 12($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   16		# deallocate stack space
+	jr	$ra
+
+max:
+	addi	$sp, $sp,   -16		# make space on stack to store 4 register
+	sw	$s0, 12($sp)		# save $s0 on stack
+	sw	$s1, 8($sp)		# save $s1 on stack
+	sw	$s2, 4($sp)		# save $s2 on stack
+	sw	$s3, 0($sp)		# save $s3 on stack
+	
+	lw	$s0, 0($a0)		# $s0 = max value
+	addi	$s1, $zero, 1		# $s1 = 1 = counter, we already process first one
+	loop3:	
+		beq	$s1, $a1,   end3	# check all elements processed
+		addi	$a0, $a0,   4		# $a0 = next array element address
+		addi	$s1, $s1,   1		# increment counter
+		lw	$s2, 0($a0)		# $s2 = candidate array element
+		slt 	$s3, $s0,   $s2		# $s3 = 1 if max < element
+		beq	$s3, $zero, loop3	# if true max stil max
+		addi	$s0, $s2,   0		# max = element
+		j 	loop3
+
+	end3:
+	addi	$v0, $s0, 0		# $v0 = max value
+	lw	$s3, 0($sp)		# restore $s3 from stack
+	lw	$s2, 4($sp)		# restore $s2 from stack
+	lw	$s1, 8($sp)		# restore $s1 from stack
+	lw	$s0, 12($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   16		# deallocate stack space
+	
+	jr	$ra
+	
+sum:
+	addi	$sp, $sp,  -12		# make space on stack to store 3 register
+	sw	$s0, 8($sp)		# save $s0 on stack
+	sw	$s1, 4($sp)		# save $s1 on stack
+	sw	$s2, 0($sp)		# save $s2 on stack
+	
+	addi	$s0, $zero, 0		# $s0 = sum
+	addi	$s1, $zero, 0		# $s1 = 0 = counter
+	loop4:	
+		beq	$s1, $a1,   end4	# check all elements processed
+		lw	$s2, 0($a0)		# $s2 = next array element
+		add	$s0, $s0,   $s2		# sum = sum + element
+		addi	$a0, $a0,   4		# $a0 = next array element address
+		addi	$s1, $s1,   1		# increment counter
+		j	loop4
+
+	end4:
+	addi	$v0, $s0, 0		# $v0 = sum
+	lw	$s2, 0($sp)		# restore $s2 from stack
+	lw	$s1, 4($sp)		# restore $s1 from stack
+	lw	$s0, 8($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   12		# deallocate stack space
+	
+	jr	$ra
+
+palindrome:
+	addi	$sp, $sp,  -12		# make space on stack to store 3 register
+	sw	$s0, 8($sp)		# save $s0 on stack
+	sw	$s1, 4($sp)		# save $s1 on stack
+	sw	$s2, 0($sp)		# save $s2 on stack
+	
+	sll	$a1, $a1,   2		# $a1 = $a1 * 4
+	add	$s0, $a0,   $a1
+	sub	$s0, $s0,   4		# $s0 = last unprocessed address of the array
+	addi	$v0, $zero, 1		# array is palindrome
+	
+	loop5:
+		bge	$a0, $s0,   end5	# if last unprocessed address <= first unprocessed address, end func.
+		lw	$s1, 0($a0)		# lower unprocessed element
+		lw	$s2, 0($s0)		# upper unprocessed element
+		bne	$s1, $s2,   break 	# are elements equal?
+		addi	$a0, $a0,   4		# next lower element
+		subi	$s0, $s0,   4		# next upper element
+		j	loop5
+	
+	break:
+	addi	$v0, $zero, 0		# array is not palindrome
+	
+	end5:
+	lw	$s2, 0($sp)		# restore $s2 from stack
+	lw	$s1, 4($sp)		# restore $s1 from stack
+	lw	$s0, 8($sp)		# restore $s0 from stack
+	addi	$sp, $sp,  12		# deallocate stack space
+	jr	$ra
+
+# arguments: $a0 -> array pointer, $a1 -> array length
+display:
+	addi	$sp, $sp,  -4		# make space on stack to store 1 register
+	sw	$s0, 0($sp)		# save $s0 on stack
+	
+	addi	$s0, $a0, 0		# $a0 will be used for printing operation
+	
+	la	$a0, bracket1		# print open bracket
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	beq	$a1, $zero, out		# if array empty
+	print:	lw	$a0, 0($s0)		# get next element
+		li	$v0, 1			# print integer
+		syscall
+	
+		addi	$a1, $a1, -1
+		addi	$s0, $s0, 4
+		beq	$a1, $zero, out
+	
+	# Print delimiter if not last
+		la	$a0, delimiter
+		li	$v0, 4
+		syscall
+	
+		j 	print			# being last element checked already
+	
+	out:	
+	la	$a0, bracket2		# print close bracket
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	lw	$s0, 0($sp)		# restore $s0 from stack
+	addi	$sp, $sp,  4		# deallocate stack space	
+	jr	$ra
+# End of display function
+
+
+	.data
+prompt1:
+	.asciiz "Enter array size: "
+prompt2:
+	.asciiz "Enter next array element: "
+prompt3:
+	.ascii  "Enter 1 for finding the min value stored in the array\n"
+	.ascii	"Enter 2 for finding the max value stored in the array\n"
+	.ascii	"Enter 3 for finding the summation of array elements\n"
+	.ascii	"Enter 4 for checking if array contents defines a palindrome\n"
+	.asciiz "Enter 0 for returning to main menu\n"
+prompt4:
+	.asciiz "Minimum value of the array is: "
+prompt5:
+	.asciiz "Maximum value of the array is: "
+prompt6:
+	.asciiz "Summation of array elements is: "
+prompt7:
+	.asciiz "Array is "
+prompt8:
+	.asciiz "Palindrome\n"
+prompt9:
+	.asciiz "Not Palindrome\n"
+prompt10:
+	.ascii  "Enter 1 for create new Array\n"
+	.asciiz	"Enter 0 for quit program\n"
+
+delimiter:
+	.asciiz ", "
+newl:	.asciiz "\n"
+bracket1:
+	.asciiz "\n["
+bracket2:
+	.asciiz "]\n"

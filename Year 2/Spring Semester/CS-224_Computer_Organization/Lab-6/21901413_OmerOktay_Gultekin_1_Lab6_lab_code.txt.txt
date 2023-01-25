@@ -1,0 +1,468 @@
+CS224
+Lab No. 6
+Section No. 1
+Full Name: Omer Oktay Gultekin
+Bilkent ID: 21901413
+Date: 25.04.2022
+
+# <------------------------------------- CAUTION ------------------------------------->
+# Following Program will not run properly if:
+# 1) you try to use matrix without creating it
+# 2) Trying to do copy operation without creating both matrixes with the same size. (The aim of the program is to examine cache. Therefore, when both of them have data it is more educating situation)
+# 3) Display Matrix was formatted to elements less than 100.000, other values may result in some format disorders.
+# 4) When giving integer inputs, given them one by one by pressing enter, not putting space in between
+# 5) Input format checking is not implemented. It is users responsibility to correctly enter data types
+# 6) Matrix indexing start from 1 not 0
+# <------------------------------------- CAUTION ------------------------------------->
+	.text
+main:
+	# There will be 2 matrix in this program whose first addresses will be held in $s0 and $s1, $s2 and $s3 is for dimensions of the matrixes 
+	addi	$v0, $zero, 1	# hard code it to start program by creating matrix 
+	loop:	
+		beq	$v0, 0, finish	# finish program
+		
+		addi	$s6, $v0, 0	 	# choice
+		
+		# Find operand matrix
+		la 	$a0, mtxSelectionMenu	# Select Base Matrix
+		li 	$v0, 4			# syscall 4 prints the string
+		syscall
+	
+		li 	$v0, 5			# syscall 5 reads an integer
+		syscall
+		add	$s4, $v0, $zero		# $s4 = base choice
+		bne	$s4, $zero, selectSecond1
+		addi	$a0, $s0, 0
+		addi	$a1, $s2, 0
+		addi	$a2, $s1, 0
+		j	case1	
+		selectSecond1:
+			addi	$a0, $s1, 0
+			addi	$a1, $s3, 0
+			addi	$a2, $s0, 0
+		
+		
+		case1:	bne	$s6, 1, case2
+			jal	createMatrix
+			bne	$s4, $zero, selectSecond2
+			addi	$s0, $v0, 0
+			addi	$s2, $v1, 0	
+			j	fill	
+			selectSecond2:
+				addi	$s1, $v0, 0
+				addi	$s3, $v1, 0
+			fill:
+				addi	$a0, $v0, 0
+				addi	$a1, $v1, 0
+				jal	fillMatrix
+				j	next	
+		case2:	bne	$s6, 2, case3
+			addi	$s5, $a0, 0		# to reassign $a0 in case we lost it, all cases will evaluate this line
+			la 	$a0, mtxElementMenu	# Prompt to take desired row and col values
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+		
+			li 	$v0, 5			# syscall 5 reads an integer
+			syscall
+			
+			addi	$a0, $s5, 0		# restore matrix address
+			addi	$a2, $v0, 0		# row value
+			
+			li 	$v0, 5			# syscall 5 reads an integer
+			syscall
+			addi	$a3, $v0, 0		# col value
+			
+			jal	displayElement
+			j	next
+		case3:	bne	$s6, 3, case4
+			jal	displayMatrix
+			j 	next
+		case4:	bne	$s6, 4, next
+			jal	copyMatrix
+		next:
+			la 	$a0, menu		# display menu
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+		
+			li 	$v0, 5			# syscall 5 reads an integer
+			syscall
+			j	loop
+		
+	# Finish program
+	finish:	
+		li	$v0, 10
+		syscall
+
+
+# ----------------------- Start of displayMatrix Function -----------------------
+# Arguments: $a0 => square matrix first element addr, $a1 => matrix one dimension, Return Value: None		
+displayMatrix:
+	addi	$sp, $sp,  -32		# make space on stack to store 8 register
+	sw	$s0, 28($sp)		# save $s0 on stack
+	sw	$s1, 24($sp)		# save $s1 on stack
+	sw	$s2, 20($sp)		# save $s2 on stack
+	sw	$s3, 16($sp)		# save $s3 on stack
+	sw	$s4, 12($sp)		# save $s4 on stack
+	sw	$s5, 8($sp)		# save $s5 on stack
+	sw	$s6, 4($sp)		# save $s6 on stack
+	sw	$s7, 0($sp)		# save $s7 on stack
+	
+	# Initialize Constants
+	addi	$s2, $zero, 10		# $s2 = 10
+	addi	$s3, $zero, 100		# $s3 = 100
+	addi	$s4, $zero, 1000	# $s4 = 1000
+	addi	$s5, $zero, 10000	# $s5 = 10000
+
+	
+	addi	$s0, $a0, 0		# $a0 will be used for printing operation
+	addi	$s1, $zero, 1		# Will be used as to show 1 to N of matrix
+	addi	$a1, $a1, 1		# To use indexing from 1 instead of 0 in above line
+	
+	# Align Rows so that rows and cols headers not cross at the beginning
+	la	$a0, display5Space	# print 5 space
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	# I assume that max size of the matrix less than 100.000. Therefore, while aligning elements, 5 space should be given to all elements
+	j	testVal1		# Use j only once for optimizing the code
+	columnValues:
+		case4Space1:
+			bge	$s1, $s2, case3Space1	#$s1 >= 10
+			la	$a0, display4Space	# print 4 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			j	printVal1
+			
+		case3Space1:
+			bge	$s1, $s3, case2Space1	#$s1 >= 100
+			la	$a0, display3Space	# print 3 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			j	printVal1
+		case2Space1:
+			bge	$s1, $s4, case1Space1	#$s1 >= 1000
+			la	$a0, display2Space	# print 2 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			j	printVal1
+		case1Space1:
+			bge	$s1, $s5, printVal1	#$s1 >= 10000
+			la	$a0, display1Space	# print 1 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+		printVal1:
+			la	$a0, display1Space	# print 1 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			addi	$a0, $s1, 0		# value to be printed
+			li 	$v0, 1			# syscall 1 prints the integer
+			syscall
+			addi	$s1, $s1, 1		# increment the col header	
+		testVal1:
+			bne	$s1, $a1, columnValues	# if not print all column headers
+	# Display row header and row Values N times (N = number of rows)
+	addi	$s1, $zero, 1		# Reset $s1 and use for row headers this time
+	displayRow:
+		addi	$s6, $zero, 1	# $s6 will ensure we do not pass the next row values
+		la	$a0, newl	# print new line
+		li 	$v0, 4		# syscall 4 prints the string
+		syscall
+		# display row header (below code can be in function but in that case we need to constantly allocate and deallocate the constants in the function which is not
+		# very efficient since memory write is a long process)
+		case4Space2:
+			bge	$s1, $s2, case3Space2	#$s1 >= 10
+			la	$a0, display4Space	# print 4 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			j	printVal2
+			
+		case3Space2:
+			bge	$s1, $s3, case2Space2	#$s1 >= 100
+			la	$a0, display3Space	# print 3 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			j	printVal2
+		case2Space2:
+			bge	$s1, $s4, case1Space2	#$s1 >= 1000
+			la	$a0, display2Space	# print 2 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+			j	printVal2
+		case1Space2:
+			bge	$s1, $s5, printVal2	#$s1 >= 10000
+			la	$a0, display1Space	# print 1 space
+			li 	$v0, 4			# syscall 4 prints the string
+			syscall
+		printVal2:
+			addi	$a0, $s1, 0		# value to be printed
+			li 	$v0, 1			# syscall 1 prints the integer
+			syscall
+			addi	$s1, $s1, 1		# increment the col header
+		
+		# Display elements in that row
+		j	testVal2			# for performance
+		displayEl:
+			lw	$s7, 0($s0)		# next element
+			case4Space3:
+				bge	$s7, $s2, case3Space3	#$s7 >= 10
+				la	$a0, display4Space	# print 4 space
+				li 	$v0, 4			# syscall 4 prints the string
+				syscall
+				j	printVal3
+			
+			case3Space3:
+				bge	$s7, $s3, case2Space3	#$s7 >= 100
+				la	$a0, display3Space	# print 3 space
+				li 	$v0, 4			# syscall 4 prints the string
+				syscall
+				j	printVal3
+			case2Space3:
+				bge	$s7, $s4, case1Space3	#$s7 >= 1000
+				la	$a0, display2Space	# print 2 space
+				li 	$v0, 4			# syscall 4 prints the string
+				syscall
+				j	printVal3
+			case1Space3:
+				bge	$s7, $s5, printVal3	#$s7 >= 10000
+				la	$a0, display1Space	# print 1 space
+				li 	$v0, 4			# syscall 4 prints the string
+				syscall
+			printVal3:
+				la	$a0, display1Space	# print 1 space
+				li 	$v0, 4			# syscall 4 prints the string
+				syscall
+				addi	$a0, $s7, 0		# value to be printed
+				li 	$v0, 1			# syscall 1 prints the integer
+				syscall
+				addi	$s6, $s6, 1		# increment the row index
+				addi	$s0, $s0, 4		# $s0 = next element address
+			testVal2:
+				bne	$s6, $a1, displayEl	# we do not cross the next row yet
+		bne	$s1, $a1, displayRow		# We do not print all rows
+		
+	la	$a0, newl	# print new line
+	li 	$v0, 4		# syscall 4 prints the string
+	syscall
+	
+	# We print all, deallocate stack and finish function
+	lw	$s7, 0($sp)		# restore $s7 from stack
+	lw	$s6, 4($sp)		# restore $s6 from stack
+	lw	$s5, 8($sp)		# restore $s5 from stack
+	lw	$s4, 12($sp)		# restore $s4 from stack
+	lw	$s3, 16($sp)		# restore $s3 from stack
+	lw	$s2, 20($sp)		# restore $s2 from stack
+	lw	$s1, 24($sp)		# restore $s1 from stack
+	lw	$s0, 28($sp)		# restore $s0 from stack
+	addi	$sp, $sp,  32		# deallocate stack space
+	jr	$ra
+# ------------------------ End of displayMatrix Function ------------------------		
+
+# ----------------------- Start of displayElement Function -----------------------
+# Arguments: $a0 => the address of the first element of the matrix, $a1 => One Dimension of Square Matrix, $a2 => Desired Row, $a3 => Desired Column, Return => None
+displayElement:
+	# There is no restriction in pdf about using temporary registers. Thus, use them for intermediate results
+	sub	$t0, $a2, 1		# $t0 = i - 1
+	mul	$t1, $t0, $a1		# $t1 = (i - 1) * N
+	sll	$t2, $t1, 2		# $t2 = (i - 1) * N * 4
+	sub	$t3, $a3, 1		# $t3 = j - 1
+	sll	$t4, $t3, 2		# $t4 = (j - 1) * 4
+	add	$t5, $t2, $t4		# Desired Offset
+	add	$t6, $t5, $a0		# Address of the element
+	lw	$t7, 0($t6)		# Load the element
+	
+	la	$a0, elementPrompt	# print prompt
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	addi	$a0, $t7, 0		# Value to be printed
+	li 	$v0, 1			# syscall 1 prints the integer
+	syscall
+	
+	la	$a0, newl	# print new line
+	li 	$v0, 4		# syscall 4 prints the string
+	syscall
+	
+	jr	$ra
+# ------------------------ End of displayElement Function ------------------------		
+
+# ------------------------ Start of fillMatrix Function ------------------------
+# Arguments: $a0 => the address of the first element of the matrix, $a1 => Matrix Size
+fillMatrix:
+	addi	$sp, $sp,  -12		# make space on stack to store 3 register
+	sw	$s0, 8($sp)		# save $s0 on stack
+	sw	$s1, 4($sp)		# save $s1 on stack
+	sw	$s2, 0($sp)		# save $s2 on stack
+	
+	addi	$s0, $a0, 0		# $s0 = the addr. of the next element of the matrix
+	mul  	$s1, $a1, $a1		# The size of the matrix
+	sll	$s1, $s1, 2		
+	add	$s1, $s1, $s0		# The first invalid address for the matrix element access
+	
+	la 	$a0, mtxCreateMenu	# prompt to enter matrix fill option
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	bne	$v0, $zero, fillWithConsJump
+	j 	testCustom		# for performance
+	fillWithCustom:
+		la 	$a0, enterRowPrompt	# prompt to enter row
+		li 	$v0, 4			# syscall 4 prints the string
+		syscall
+		addi	$s2, $zero, 0		# user will enter all row, we read them one by one. Therefore, we need to know where to stop
+		readElements:
+			li 	$v0, 5			 # syscall 5 reads an integer
+			syscall
+			sw	$v0, 0($s0)		 # store the given word in matrix
+			addi	$s2, $s2, 1
+			addi	$s0, $s0, 4
+			bne	$s2, $a1, readElements	 # We do not finish the reading of the row values yet
+		testCustom:
+			bne	$s0, $s1, fillWithCustom	 # We do not reach the end of the matrix yet
+	# We finish writing
+	j	endFillMatrix
+	
+	fillWithConsJump:
+		addi	$s2, $zero, 1		# $s2 = Data that we will store in the matrix position		
+		j	testCons		# for performance
+	fillWithConsecutive:
+		sw	$s2, 0($s0)
+		addi	$s2, $s2, 1
+		addi	$s0, $s0, 4
+		testCons:
+			bne	$s0, $s1, fillWithConsecutive	# We do not reach the end of the matrix yet
+	# We finish writing
+	
+	endFillMatrix:
+		lw	$s2, 0($sp)		# restore $s2 from stack
+		lw	$s1, 4($sp)		# restore $s1 from stack
+		lw	$s0, 8($sp)		# restore $s0 from stack
+		addi	$sp, $sp,  12		# deallocate stack space
+		jr	$ra
+# ------------------------- End of fillMatrix Function -------------------------
+
+# ------------------------- Start of copyMatrix Function -------------------------
+# Arguments: $a0 => Matrix to be copied, $a1 => Matrixes 1 dimensions, $a2 => Matrix to be changed, Return => None
+copyMatrix:
+	addi	$sp, $sp,  -24		# make space on stack to store 6 register
+	sw	$s0, 20($sp)		# save $s0 on stack
+	sw	$s1, 16($sp)		# save $s1 on stack
+	sw	$s2, 12($sp)		# save $s2 on stack
+	sw	$s3, 8($sp)		# save $s3 on stack
+	sw	$s4, 4($sp)		# save $s4 on stack
+	sw	$s5, 0($sp)		# save $s5 on stack
+	
+	addi	$s0, $a0, 0		# $s0 = the addr. of the next element in the first matrix
+	
+	la 	$a0, mtxCopyMenu	# prompt to enter matrix copy option
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	bne	$v0, $zero, columnWiseJump
+	mul  	$s1, $a1, $a1		# $s1 = Matrix Size
+	sll	$s1, $s1, 2		
+	add	$s1, $s1, $s0		# The first invalid address for the matrix element access
+	j 	testRowWise		# for performance
+	rowWise:
+		lw	$s2, 0($s0)	# element to be copied
+		sw	$s2, 0($a2)	# Overwrite element in matrix to be changed
+		
+		sw	$s2, 0($s0)
+		addi	$s0, $s0, 4
+		addi	$a2, $a2, 4
+		testRowWise:
+			bne	$s0, $s1, rowWise	# We do not reach the end of the matrix yet	
+	# We finish copy
+	j	endCopy
+	
+	columnWiseJump:
+		addi	$s1, $zero, 0	# Row Address (i - 1)
+		addi	$s2, $zero, 0	# Col Address (j - 1)
+		sll	$t0, $a1, 2	# $t0 = N * 4
+		j	testRowEnd
+	nextRow:
+		mul	$s3, $s1, $t0	# $s3 = (i - 1) * N * 4
+		sll	$s4, $s2, 2	# $s4 = (j - 1) * 4
+		add	$s3, $s3, $s4	# $s3 = offset
+		add	$s4, $s3, $a2	# $s4 = the next address will be changed (in 2nd matrix)
+		add	$s3, $s3, $s0	# $s3 = the next address that will be copied (in 1st matrix)
+		lw	$s5, 0($s3)	# element to be copied
+		sw	$s5, 0($s4)	# element is replaced
+		addi	$s1, $s1, 1	# go to next row
+		testRowEnd:
+			bne	$s1, $a1, nextRow	# there is still row in the current col
+		addi	$s2, $s2, 1	# next col
+		addi	$s1, $zero, 0	# reset row
+		bne	$s2, $a1, nextRow	# there is still col that we can go
+	# We finish copy
+	endCopy:
+		lw	$s5, 0($sp)		# restore $s5 from stack
+		lw	$s4, 4($sp)		# restore $s4 from stack
+		lw	$s3, 8($sp)		# restore $s3 from stack
+		lw	$s2, 12($sp)		# restore $s2 from stack
+		lw	$s1, 16($sp)		# restore $s1 from stack
+		lw	$s0, 20($sp)		# restore $s0 from stack
+		addi	$sp, $sp,  24		# deallocate stack space
+		jr	$ra
+# -------------------------- End of copyMatrix Function --------------------------
+
+# -------------------------- Start of createMatrix Function --------------------------
+# Arguments: None, Return: $v0 => address of the first index of the matrix, $v1 => dimension of the matrix
+createMatrix:
+	la 	$a0, mtxSizePrompt	# prompt to enter matrix dimension
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	addi	$v1, $v0, 0		# dimension of the matrix
+	mul	$t0, $v0, $v0		# $t0 = matrix size
+	
+	sll	$a0, $t0,   2		# multiply matrix size by 4
+	li	$v0, 9			# starting address of the matrix
+	syscall
+	jr	$ra
+# --------------------------- End of createMatrix Function ---------------------------
+
+
+
+	.data
+menu:		.ascii  "Enter 1 for creating new matrix\n"
+		.ascii  "Enter 2 for displaying specific element of the matrix\n"
+		.ascii  "Enter 3 for displaying entire matrix\n"
+		.ascii  "Enter 4 for copy one matrix to the other\n"
+		.asciiz "Enter 0 for exit\n"
+
+mtxSelectionMenu:
+		.ascii  "Which matrix do you want to select as a base matrix:\n"
+		.ascii  "Enter 0 for first matrix\n"
+		.asciiz "Enter 1 for second matrix\n"
+
+mtxSizePrompt:  .asciiz "Enter the matrix size (N): "
+
+mtxCreateMenu:  .ascii  "Enter 0 for creating matrix by giving elements row by row\n"
+	        .asciiz "Enter 1 for creating matrix from consecutive values from 1 to N\n"
+
+enterRowPrompt: .asciiz "Enter next row one by one:\n"
+
+elementPrompt:	.asciiz "Requested Element: "
+	        
+mtxElementMenu:	.asciiz "Enter row and column number one by one:\n"
+
+# For aligning datas while showing them, I assume matrix elements at most have 5 digits that is less than 100.000
+display5Space: 	.asciiz "     "
+display4Space: 	.asciiz "    "
+display3Space: 	.asciiz "   "
+display2Space: 	.asciiz "  "
+display1Space: 	.asciiz " "
+
+mtxCopyMenu:	.ascii  "Enter 0 for copying matrix row-wise\n"
+		.asciiz "Enter 1 for copying matrix column-wise\n"	
+	       	       
+newl:	.asciiz "\n"

@@ -1,0 +1,278 @@
+CS224
+Lab No. 2
+Section No. 1
+Full Name: Omer Oktay Gultekin
+Bilkent ID: 21901413
+Date: 07.03.2022
+
+# Bubble sort and processing array code
+	.text
+main:
+	menu:	la 	$a0, prompt3		# display menu
+		li 	$v0, 4			# syscall 4 prints the string
+		syscall
+		
+		li 	$v0, 5			# syscall 5 reads an integer
+		syscall
+		
+		halt:   beq	$v0, 0,     finish	# finish program
+		cont:	bne	$v0, 1,     menu	# create new array
+			jal	createArray
+			
+			addi	$s0, $v0,   0		# $s0 = array address constant
+			addi	$s1, $v1,   0		# $s0 = array size constant
+			
+			move	$a0, $s0		# $a0 = array address
+			move	$a1, $s1		# $a1 = array size
+			
+			jal	bubbleSort		# sort created array
+			j	menu
+
+	# Finish program
+	finish:	
+		li	$v0, 10
+		syscall
+
+
+createArray:
+	addi	$sp, $sp,   -16		# make space on stack to store 4 register
+	sw	$s0, 12($sp)		# save $s0 on stack
+	sw	$s1, 8($sp)		# save $s1 on stack
+	sw	$s2, 4($sp)		# save $s2 on stack
+	sw	$s3, 0($sp)		# save $s3 on stack
+
+
+	la 	$a0, prompt1		# prompt to enter array size
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	addi	$s0, $v0,   0		# $s0 = array size
+	addi	$s1, $zero, 0		# $s1 = counter
+	
+	beq	$s0, $zero, end		# if size is zero
+	sll	$a0, $v0,   2		# multiply array size by 4
+	li	$v0, 9
+	syscall
+	
+	addi	$s2, $v0,   0		# $s2 = address of the first array element
+	addi	$s3, $s2,   0		# $s3 = copy of the array beginning address
+	
+	loop1:
+		la 	$a0, prompt2	# prompt to enter next array element
+		li 	$v0, 4		# syscall 4 prints the string
+		syscall
+	
+		li 	$v0, 5		# syscall 5 reads an integer
+		syscall
+	
+		sw	$v0, 0($s2)	# store element in corresponding position
+		addi	$s2, $s2,    4	# $s1 = address of the next array element
+		addi	$s1, $s1,    1	# increase counter by 1
+		bne	$s0, $s1, loop1	# if array not full, continue
+	
+	end:
+	addi	$v0, $s3,   0		# $v0 = beginning of the array address
+	addi	$v1, $s0,   0		# $v1 = array size
+	
+	lw	$s3, 0($sp)		# restore $s3 from stack
+	lw	$s2, 4($sp)		# restore $s2 from stack
+	lw	$s1, 8($sp)		# restore $s1 from stack
+	lw	$s0, 12($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   16		# deallocate stack space
+	jr	$ra
+	
+bubbleSort:	
+	addi	$sp, $sp,   -36		# make space on stack to store 9 register
+	sw	$s0, 32($sp)		# save $s0 on stack
+	sw	$s1, 28($sp)		# save $s1 on stack
+	sw	$s2, 24($sp)		# save $s2 on stack
+	sw	$s3, 20($sp)		# save $s3 on stack
+	sw	$s4, 16($sp)		# save $s4 on stack
+	sw	$s5, 12($sp)		# save $s5 on stack
+	sw	$s6, 8($sp)		# save $s6 on stack
+	sw	$s7, 4($sp)		# save $s7 on stack
+	sw	$ra, 0($sp)		# save $ra on stack
+	
+	addi	$s0, $zero, 0		# $s0 = outer counter (i)
+	addi	$s1, $zero, 0		# $s1 = inner counter (j)
+	move	$s3, $a1		# $s3 = unsorted Length
+	move	$s2, $a0		# $s2 = array pointer
+	move	$s7, $s2		# $s7 = first address of the array (always)
+	outerLoop:
+		move	$s2, $s7		# $s2 = first address of the array
+		beq	$s3, $zero, endSort	# if array sorted go endSort
+		addi	$s3, $s3, -1		# 1 element will be sorted in inner loop => unsorted -= 1
+		innerLoop:
+			beq	$s1, $s3,   out1	# if inner loop reaches end of unsorted array go outside of inner loop
+			lw	$s5, 0($s2)		# $s5 = v[current]
+			lw	$s6, 4($s2)		# $s6 = v[next]
+			slt	$s4, $s6,   $s5		# $s4 = 0 if $s6 >= $s5
+			beq	$s4, $zero, out2	# if $s6 >= $s5 go out2 (no need swap)
+			move	$a0, $s2		# $a0 = larger element address
+			jal	swap			# call swap function
+		out2:
+			addi	$s2, $s2,   4		# $s2 = next array address
+			addi	$s1, $s1, 1		# j += 1
+			j	innerLoop
+	out1:
+		addi	$s0, $s0,   1		# i += 1
+		addi	$s1, $zero, 0		# j = 0
+		j	outerLoop
+	endSort:
+	move	$a0, $s7		# $a0 = array address
+	move	$a1, $s0		# $a1 = array size
+	
+	jal	processSortedArray
+	lw	$ra, 0($sp)		# restore $ra from stack
+	lw	$s7, 4($sp)		# restore $s7 from stack
+	lw	$s6, 8($sp)		# restore $s6 from stack
+	lw	$s5, 12($sp)		# restore $s5 from stack
+	lw	$s4, 16($sp)		# restore $s4 from stack
+	lw	$s3, 20($sp)		# restore $s3 from stack
+	lw	$s2, 24($sp)		# restore $s2 from stack
+	lw	$s1, 28($sp)		# restore $s1 from stack
+	lw	$s0, 32($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   36		# deallocate stack space
+	jr	$ra	
+
+swap:
+	addi	$sp, $sp,   -8		# make space on stack to store 2 register
+	sw	$s1, 4($sp)		# save $s1 on stack
+	sw	$s0, 0($sp)		# save $s0 on stack
+	
+	# lw's are required since in mips memory data cannot be operand
+	lw	$s0, 0($a0)		# $s0 = larger element value
+	lw	$s1, 4($a0)		# $s0 = smaller element value
+	sw	$s1, 0($a0)		# now $a0 contains smaller element
+	sw	$s0, 4($a0)		# now $a0 + 4 contains larger element
+	
+	lw	$s0, 0($sp)		# restore $s0 from stack
+	lw	$s1, 4($sp)		# restore $s1 from stack
+	addi	$sp, $sp,   8		# deallocate stack space
+	jr	$ra			# return bubble sort function
+	
+processSortedArray:
+	addi	$sp, $sp,   -16		# make space on stack to store 3 register
+	sw	$s0, 12($sp)		# save $s0 on stack
+	sw	$s1, 8($sp)		# save $s1 on stack
+	sw	$s2, 4($sp)		# save $s2 on stack
+	sw	$ra, 0($sp)		# save $ra on stack
+
+	move	$s0, $a0		# $s0 = array address
+	move	$s1, $a1		# $s1 = array length
+	addi	$s2, $zero, 0		# $s2 = counter
+	
+	
+	
+	la	$a0, bracket1		# displays "[ "
+	li	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	loop:
+		beq	$s2, $s1, endProcess	# if all elements processed, exit loop
+		
+		la	$a0, bracket1		# displays "[ "
+		li	$v0, 4			# syscall 4 prints the string
+		syscall
+		
+		move	$a0, $s2		# $a0 = counter
+		li	$v0, 1			# $v0 = 1 prints the integer
+		syscall
+		
+		la	$a0, delimiter		# displays tab
+		li	$v0, 4			# syscall 4 prints the string
+		syscall
+		
+		lw	$a0, 0($s0)		# $a0 = array element
+		li	$v0, 1			# $v0 = 1 prints the integer
+		syscall
+		
+		la	$a0, delimiter		# displays tab
+		li	$v0, 4			# syscall 4 prints the string
+		syscall
+		
+		lw	$a0, 0($s0)		# $a0 = array element
+		jal	sumDigits
+		
+		move	$a0, $v0		# $a0 = $v0, sum of digits
+		li	$v0, 1			# $v0 = 1 prints the integer
+		syscall
+		
+		addi	$s2, $s2, 1		# $s2 += 1
+		addi	$s0, $s0, 4		# $s0 += 4, next array element
+		
+		la	$a0, bracket2		# displays " ]"
+		li	$v0, 4			# syscall 4 prints the string
+		syscall
+		
+		j	loop
+		
+	endProcess:
+	la	$a0, bracket2		# displays " ]"
+	li	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	la	$a0, newl		# print new line
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+		
+	lw	$ra, 0($sp)		# restore $ra from stack
+	lw	$s2, 4($sp)		# restore $s2 from stack
+	lw	$s1, 8($sp)		# restore $s1 from stack
+	lw	$s0, 12($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   16		# deallocate stack space
+	jr	$ra
+
+sumDigits:
+	addi	$sp, $sp,   -16		# make space on stack to store 3 register
+	sw	$s0, 12($sp)		# save $s0 on stack
+	sw	$s1, 8($sp)		# save $s1 on stack
+	sw	$s2, 4($sp)		# save $s2 on stack
+	sw	$s3, 0($sp)		# save $s3 on stack
+	
+	abs  	$s0, $a0		# element to be summed (convert positive)
+	addi	$s1, $zero, 10		# $s1 = 10 will be divider
+	move	$s2, $zero		# $s2 = 0, $s2 will be sum of digits
+	
+	while:	
+		beq	$s0, $zero, endSum	# while element not zero:
+		div	$s0, $s1		# element / 10
+		mflo	$s0			# $s0 /= 10
+		mfhi	$s3			# $s3 = $s0 mod $s1
+		
+		
+		add	$s2, $s2, $s3		# $s2 += $s3
+		j	while
+	
+	endSum:
+	move	$v0, $s2		# $v0 = $s2, return value
+	lw	$s3, 0($sp)		# restore $s3 from stack
+	lw	$s2, 4($sp)		# restore $s2 from stack
+	lw	$s1, 8($sp)		# restore $s1 from stack
+	lw	$s0, 12($sp)		# restore $s0 from stack
+	addi	$sp, $sp,   16		# deallocate stack space
+	jr	$ra
+			
+	.data
+prompt1:
+	.asciiz "Enter array size: "
+	
+prompt2:
+	.asciiz "Enter next array element: "
+	
+prompt3:
+	.ascii  "Enter 1 for create new Array\n"
+	.asciiz	"Enter 0 for quit program\n"
+	
+delimiter:
+	.asciiz "    "
+newl:	.asciiz "\n\n"
+
+bracket1:
+	.asciiz "[ "
+	
+bracket2:
+	.asciiz " ] "

@@ -1,0 +1,449 @@
+CS224
+Lab No. 1
+Section No. 1
+Full Name: Omer Oktay Gultekin
+Bilkent ID: 21901413
+Date: 21.02.2022
+
+Part-1 B Hello World Program
+##
+## Program1.asm - prints out "hello world"
+##
+##	a0 - points to the string
+##
+
+#################################
+#					 	#
+#		text segment		#
+#						#
+#################################
+
+	.text		
+	.globl __start 
+
+__start:		# execution starts here
+	la $a0,str	# put string address into a0
+	li $v0,4	# system call to print
+	syscall		#   out a string
+
+	li $v0,10  # system call to exit
+	syscall	#    bye bye
+
+
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+#str:	.asciiz "0123hello world\n"
+str:	.asciiz "Hello Fazil\n"
+n:	.word	10
+
+##
+## end of file Program1.asm
+
+
+Part-1 C Conversion Program
+##
+## Program2.asm asks user for temperature in Celsius,
+##  converts to Fahrenheit, prints the result.
+##
+##	v0 - reads in Celsius
+##	t0 - holds Fahrenheit result
+##	a0 - points to output strings
+##
+
+#################################
+#					 	#
+#		text segment		#
+#						#
+#################################
+
+	.text		
+	.globl __start	
+
+__start:
+	la $a0,prompt	# output prompt message on terminal
+	li $v0,4	# syscall 4 prints the string
+	syscall
+
+	li $v0, 5	# syscall 5 reads an integer
+	#li v0, 5	# "v0": operand is of incorrect type
+	#$li v0		# "$li" is not a recognized operator
+	syscall
+
+	mul $t0,$v0,9	# to convert,multiply by 9,
+	#mul $t0,$t0,9	# 0 * 0 -> 0 / 5 -> 0 + 32 = 32
+	div $t0,$t0,5	# divide by 5, then
+	add $t0,$t0,32	# add 32
+
+	la $a0,ans1	# print string before result
+	li $v0,4
+	syscall
+
+	move $a0,$t0	# print integer result
+	li $v0,1		# using syscall 1
+	syscall
+
+	la $a0,endl	# system call to print
+	li $v0,4		# out a newline
+	syscall
+
+	li $v0,10		# system call to exit
+	syscall		#    bye bye
+
+
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+prompt:	.asciiz "Enter temperature (Celsius): "
+ans1:	.asciiz "The temperature in Fahrenheit is "
+endl:	.asciiz "\n"
+
+##
+## end of file Program2.asm
+
+
+Part-2 Fibonacci Program
+##
+##	Program3.asm is a loop implementation
+##	of the Fibonacci function
+##        
+
+#################################
+#					 	#
+#		text segment		#
+#						#
+#################################
+
+	.text		
+.globl __start
+ 
+__start:		# execution starts here
+	li $a0,9	# to calculate fib(7)
+	#jal flb		# call fib
+	jal fib		# call fib
+	move $a0,$v0	# print result
+	li $v0, 1
+	#syscal
+	syscall
+
+	#la $a0,end	# print newline
+	la $a0,endl	# print newline
+	li $v0, 4
+	#syscal
+	syscall
+
+	#li $v0,100
+	li $v0,10
+	#syscal		# bye bye
+	syscall
+
+#------------------------------------------------
+
+
+fib:	move $v0,$a0	# initialise last element
+	#blt $a0,2,don	# fib(0)=0, fib(1)=1
+	blt $a0,2,done	# fib(0)=0, fib(1)=1
+	
+	li $t0,0	# second last element
+	li $v0,1	# last element
+
+loop:	#add $t1,$t0,v0	# get next value
+	add $t1,$t0,$v0	# get next value
+	move $t0,$v0	# update second last
+	move $v0,$t1	# update last element
+	sub $a0,$a0,1	# decrement count
+	#bgt $a0,0,loop	# exit loop when count=0
+	bgt $a0,1,loop	# exit loop when count=1
+done:	jr $ra
+
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+endl:	.asciiz "\n"
+
+##
+## end of Program3.asm
+
+
+Part-3 Calculation Program
+	.text
+main:	la 	$a0, prompt1		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	add	$s0, $zero, $v0		# $s0 = a
+	
+	la 	$a0, prompt2		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	add	$s1, $zero, $v0		# $s1 = b
+	
+	
+# do intermediate steps with temp variables
+# convert b to -b
+	nor	$t0, $s1, $zero
+	addi	$t0, $t0, 1		# $t0 = -b
+	
+	add	$t1, $s0 ,$t0		# $t1 = a - b
+	
+	div 	$s0, $s1
+	mfhi	$t2			# $t2 = $s0 mod $s1 -> a % b
+	
+	mult 	$t2, $t1
+	mflo	$t3			# $t3 = (a % b) * (a - b)
+	
+	div 	$t3, $s1
+	mflo	$t4			# $t3 = (a % b) * (a - b) / b
+	
+	la 	$a0, prompt3		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	addi	$a0, $t4, 0		# print calculation	
+	li 	$v0, 1			
+	syscall	
+
+	.data
+prompt1:
+	.asciiz "Enter a: "
+
+prompt2:
+	.asciiz "Enter b: "
+
+prompt3:
+	.asciiz "Calculation result: "
+
+newl:
+	.asciiz	"\n"
+
+
+Part-4 Menu Program
+	.text
+main:	la 	$a0, prompt1		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	
+	la	$s0, array		# $s1 = constant pointer to the first index of the array
+	addi	$s1, $v0, 0		# array length
+				
+	# get elements and put them into the array
+	addi	$a0, $s0, 0		# pass pointer into function
+	addi	$a1, $v0, 0		# number of items remaining
+	jal	insert
+
+while:	la 	$a0, newl		# output menu on terminal
+	li 	$v0,4			# syscall 4 prints the string
+	syscall
+	
+	la 	$a0, menu		# output menu on terminal
+	li 	$v0,4			# syscall 4 prints the string
+	syscall
+	
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall
+	addi	$a0, $s0, 0		# copy array pointer
+	addi	$a1, $s1, 0		# copy array length
+	
+case1:	bne	$v0, 1, case2
+	jal	sum 	
+	j	while
+	
+case2:	bne	$v0, 2, case3
+	jal	test
+	j	while
+
+case3:	bne	$v0, 3, case4
+	jal	divide 	
+	j	while
+
+case4:	bne	$v0, 4, while
+	j	finish
+		
+# finish program
+finish:
+	li	$v0, 10
+	syscall
+	
+
+insert:
+	addi	$t0, $a0, 0		# $t0 = pointer to the first element of the array
+	addi	$t1, $a1, 0		# $t1 = num of items remaining
+
+# display message and read integer element from user	
+loop:	beq 	$t1, $zero, done	# Take next element
+	la 	$a0, prompt2		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall	
+
+	sw	$v0, 0($t0)
+	addi	$t0, $t0, 4		# Increment the pointer to point next index
+	addi	$t1, $t1, -1		# Decrement the number of items remaining
+	j 	loop
+	
+done:	jr	$ra
+# End of insert function
+
+
+sum:	addi	$t0, $a0, 0		# $t0 = array pointer
+	addi	$t1, $s1, 0		# $t1 = array length
+	addi	$t2, $zero, 0		# summation of numbers  
+
+	la 	$a0, prompt2		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall	
+
+next1:	beq 	$t1, $zero, end1
+	lw	$t3, 0($t0)
+	addi	$t0, $t0, 4		# Increment the pointer to point next index
+	addi	$t1, $t1, -1		# Decrement the number of items remaining
+	bge 	$t3, $v0, next1		# input >= element
+	add 	$t2, $t2, $t3		# sum = sum + element
+	j	next1
+# print sum
+end1:	la 	$a0, prompt5		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	addi	$a0, $t2, 0		
+	li 	$v0, 1			
+	syscall	
+	jr	$ra
+	
+# End of sum function
+
+test:	addi	$t0, $a0, 0		# $t0 = array pointer
+	addi	$t1, $s1, 0		# $t1 = array length
+	addi	$t2, $zero, 0		# odd number counter 
+	addi	$t3, $zero, 0		# even number counter
+
+next2:
+	beq	$t1, $zero, end2
+	lw	$t4, 0($t0)		# array element
+	addi	$t0, $t0, 4		# Increment the pointer to point next index
+	addi	$t1, $t1, -1		# Decrement the number of items remaining
+	andi 	$t5, $t4, 1		# mask the last bit using and
+	bne	$t5, $zero, odd		# use bne here since they have only 1 bits 
+	addi	$t3, $t3, 1		# $t3 = $t3 + 1, even
+	j 	next2
+odd:	addi	$t2, $t2, 1		# $t2 = $t2 + 1, odd
+	j 	next2
+end2:
+# print counters
+	la 	$a0, prompt3		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	addi	$a0, $t2, 0		#print odd cnt	
+	li 	$v0, 1			
+	syscall	
+	
+	la 	$a0, delimiter		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	la 	$a0, prompt4		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+	
+	addi	$a0, $t3, 0		#print even cnt	
+	li 	$v0, 1			
+	syscall
+		
+	jr	$ra
+# End of test function
+
+divide:
+	addi	$t0, $a0, 0		# $t0 = array pointer
+	addi	$t1, $s1, 0		# $t1 = array length
+	addi	$t2, $zero, 0		# not divisible number counter
+
+	la 	$a0, prompt2		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	li 	$v0, 5			# syscall 5 reads an integer
+	syscall	
+
+next3:	beq	$t1, $zero, end3
+	lw	$t3, 0($t0)
+	addi	$t0, $t0, 4		# Increment the pointer to point next index
+	addi	$t1, $t1, -1		# Decrement the number of items remaining
+	div 	$t3, $v0
+	mfhi	$t4			# $t4= $t3 mod $v0
+	beq	$t4, $zero, next3
+	addi	$t2, $t2, 1		# $t2 = $t2 + 1
+	j 	next3
+
+# print not divisible number occurences
+end3:	la 	$a0, prompt6		# output prompt message on terminal
+	li 	$v0, 4			# syscall 4 prints the string
+	syscall
+
+	addi	$a0, $t2, 0		
+	li 	$v0, 1			
+	syscall	
+	jr	$ra
+# End of divide function
+	
+	
+	.data
+array:  .space 	400
+
+prompt1:
+	.asciiz "Enter the number of elements: "
+
+prompt2:
+	.asciiz "Enter integer element: "
+	
+prompt3:
+	.asciiz "Odd: "
+	
+prompt4:
+	.asciiz "Even: "
+
+prompt5:
+	.asciiz "Sum: "
+
+prompt6:
+	.asciiz "Not divisible number occurences: "
+
+menu:
+	.ascii  "Press:\n"
+	.ascii  "1.\tFind sum of the array elements less than given number\n"
+	.ascii  "2.\tFind the numbers of even and odd numbers and display them\n"
+	.ascii  "3.\tFind the number of occurrences of the array elements NOT divisible by a certain given number\n"
+	.asciiz "4.\tQuit\n"
+	
+delimiter:
+	.asciiz ", "
+
+newl:
+	.asciiz	"\n"

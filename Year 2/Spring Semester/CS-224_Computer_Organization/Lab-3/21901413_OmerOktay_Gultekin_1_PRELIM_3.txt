@@ -1,0 +1,314 @@
+CS224
+Lab No. 3
+Section No. 1
+Full Name: Omer Oktay Gultekin
+Bilkent ID: 21901413
+Date: 15.03.2022
+
+	.text
+main:
+	startMain:
+	###########################################################################################
+	# This part is for testing Main Function
+	# Commenting out below code will decrease addCnt by 1, oriCnt by 2, lwCnt by 3
+	###########################################################################################
+	add	$s1, $s1, $zero		# for test
+	ori	$s1, $s1, 0 		# for test
+	ori	$s1, $s1, 0 		# for test
+	lw	$s1, startMain		# for test
+	lw	$s1, startMain		# for test
+	lw	$s1, startMain		# for test
+	###########################################################################################
+	
+	### For Main Function ###
+	# starting and ending address of the main function
+     	la 	$a0, startMain
+     	la 	$a1, endMain
+        
+        jal instructionCount		# $v0 = oriCnt, $v1 = addCnt, $a3 = lwCnt
+     
+     	add	$s0, $v0, $zero		# $s0 = oriCnt
+     	add	$s1, $v1, $zero		# $s1 = addCnt
+     	add	$s2, $a3, $zero		# $s2 = lwCnt
+     	
+     	# Display Message			
+     	li 	$v0, 4
+    	la 	$a0, outMain
+     	syscall
+     	
+     	
+     	# Display Message			
+     	li 	$v0, 4
+    	la 	$a0, oriCount
+     	syscall
+
+     	# Print oriCnt
+     	li 	$v0, 1
+     	move	$a0, $s0
+     	syscall
+	
+     	# Display Message
+    	li	$v0, 4
+     	la 	$a0, addCount
+     	syscall
+ 
+     	# Print addCnt
+     	li 	$v0, 1
+     	move	$a0, $s1
+     	syscall
+     
+     	# Display Message
+    	li 	$v0, 4
+     	la 	$a0, lwCount
+     	syscall
+     
+     	# Print lwCnt
+     	li	$v0, 1
+     	move 	$a0, $s2
+     	syscall
+     	
+     	### For instructionCount Function ###
+     	# starting and ending address of the instructionCount function
+     	la 	$a0, instructionCount
+     	la 	$a1, endInsCount
+        
+        jal instructionCount		# $v0 = oriCnt, $v1 = addCnt, $a3 = lwCnt
+     
+     	add	$s0, $v0, $zero		# $s0 = oriCnt
+     	add	$s1, $v1, $zero		# $s1 = addCnt
+     	add	$s2, $a3, $zero		# $s2 = lwCnt
+     	
+     	# Display Message			
+     	li 	$v0, 4
+    	la 	$a0, outInsCount
+     	syscall
+     	
+     	
+     	# Display Message			
+     	li 	$v0, 4
+    	la 	$a0, oriCount
+     	syscall
+
+     	# Print oriCnt
+     	li 	$v0, 1
+     	move	$a0, $s0
+     	syscall
+	
+     	# Display Message
+    	li	$v0, 4
+     	la 	$a0, addCount
+     	syscall
+ 
+     	# Print addCnt
+     	li 	$v0, 1
+     	move	$a0, $s1
+     	syscall
+     
+     	# Display Message
+    	li 	$v0, 4
+     	la 	$a0, lwCount
+     	syscall
+     
+     	# Print lwCnt
+     	li	$v0, 1
+     	move 	$a0, $s2
+     	syscall
+	
+GetInputFromUser:
+
+    	# Ask Divident
+     	li 	$v0, 4
+     	la 	$a0, promptDivident
+     	syscall
+    
+    	# Get Divident
+     	li 	$v0, 5
+     	syscall
+     
+    	# Move Divident to $s3
+     	addi 	$s3, $v0 ,0 
+    
+   	# Ask Divisor
+     	li 	$v0, 4
+     	la 	$a0, promptDivisor
+     	syscall
+    
+     	# Get Divisor
+     	li 	$v0, 5
+     	syscall
+     
+    	# Move Divisor to $a1
+     	addi 	$a1, $v0 ,0 
+     
+    	# Check if divisor is equal to 0
+     	beq 	$a1, 0 , Error
+     
+   	# Move Divident to $a0
+   	add	$a0, $s3, $zero
+   	
+    	# Calling recursion 
+    	jal 	RecursiveDivision
+    	
+    	# Move Result to $s3    
+    	move 	$s3 , $v0
+    
+    	# Display Message
+    	li	$v0, 4
+     	la 	$a0, outQuotient
+     	syscall
+    	
+    	# Print The Result
+    	add	$a0, $s3, $zero
+    	li 	$v0, 1
+    	syscall
+   
+      	# Prompt repeat
+     	li 	$v0, 4
+     	la 	$a0, promptRepeat
+     	syscall
+     
+     	# Get Choice
+     	li 	$v0, 5
+     	syscall
+     
+     	# If choice == 1, continue
+     	beq 	$v0, 1, GetInputFromUser
+      
+    	# Finish the Program
+     	j end
+    	
+	Error:
+ 	# Display Error Message
+     	li 	$v0, 4
+     	la 	$a0, divisionByZeroError
+     	syscall
+     	j end
+     	
+	end:
+    	# Finish the program
+    	li 	$v0 10
+    	syscall
+endMain:
+# End of the main function
+	
+				
+# Parameters: $a0 = divident, $a1 = divisor, Return values: $v0 = quotient
+RecursiveDivision:
+	addi	$sp, $sp,   -4		# make space on stack to store one register
+	sw	$ra, 0($sp)		# save $ra on stack
+	
+	bge	$a0, $a1, recStep	# Divident >= Divisor => Division continues
+	
+	# Base Case
+	addi	$v0, $zero, 0		# $v0 = 0
+	j	finishRecDiv
+	
+	# Recursive Step
+	recStep:
+		sub	$a0, $a0, $a1		# $a0 = $a0 - $a1
+		jal	RecursiveDivision
+		addi    $v0 , $v0 , 1		# Quotient += 1
+	
+	finishRecDiv:
+		lw	$ra, 0($sp)		# restore $ra from stack
+		addi	$sp, $sp,   4		# deallocate stack space
+		jr	$ra
+# End of recursiveDiv function
+
+# Parameters: $a0 = start address, $a1 = end address, Return values: $v0 = oriCnt, $v1 = addCnt, $a3 = lwCnt			
+instructionCount:    
+	addi	$sp, $sp, -28		# make space on stack to store 7 register
+	sw	$s0, 24($sp)		# save $s0 on stack
+	sw	$s1, 20($sp)		# save $s1 on stack
+	sw	$s2, 16($sp)		# save $s2 on stack
+	sw	$s3, 12($sp)		# save $s3 on stack
+	sw	$s4, 8($sp)		# save $s4 on stack
+	sw      $s5  4($sp)		# save $s5 on stack
+	sw	$ra, 0($sp) 		# save $ra on stack
+
+	###########################################################################################
+	# This part is for testing instructionCount Function
+	# Commenting out below code will decrease addCnt by 1, oriCnt by 2, lwCnt by 3
+	# Note that $s0 and $s1 can be manipulated freely since they are saved on stack already
+	###########################################################################################
+	add	$s1, $s1, $zero		# for test
+	ori	$s1, $s1, 0 		# for test
+	ori	$s1, $s1, 0 		# for test
+	lw	$s1, 0($a0)		# for test
+	lw	$s1, 0($a0)		# for test
+	lw	$s1, 0($a0)		# for test
+	###########################################################################################
+	
+	move 	$s0, $a0		# start address
+	move 	$s1, $a1		# end address
+	
+	li 	$s2, 0			# ori counter opcode 13
+	li 	$s3, 0			# add counter opcode 0 function code 32
+	li 	$s4, 0       		# lw  counter opcode 35
+	next:
+		bgt 	$s0, $s1, finish		# next address >= end address => finish
+		lw 	$s5, 0($s0)			# next address
+		
+		move 	$s6, $s5			# copy next address
+		
+		srl 	$s5, $s5, 26			# isolate opcode
+		
+		# Fetch next address first since it will not effect parsing but save code
+		addi 	$s0, $s0, 4			# fetch next address
+		
+		# parse opcode
+		beq 	$s5, 0,  checkFunctCode
+		beq 	$s5, 13, incOri
+		beq 	$s5, 35, incLw
+		j 	next
+	incOri:
+		addi 	$s2, $s2, 1			# oriCnt += 1
+		j next
+	checkFunctCode:	
+		andi	$s6, $s6, 63			# mask $s6 with 6 bit to get rid of everything other than function code (63 = 0b111111)
+		beq 	$s6, 32, incAdd
+		j next
+	incAdd:
+		addi $s3, $s3, 1			# addCnt += 1
+		j next
+	incLw: 
+		addi $s4, $s4, 1			# lwCnt += 1
+		j next	
+	finish:
+		move $v0, $s2				# $v0 = oriCnt
+		move $v1, $s3				# $v1 = addCnt
+		move $a3, $s4				# $a3 = lwCnt
+		
+		lw	$ra, 0($sp)			# restore $ra from stack
+		lw      $s5, 4($sp)			# restore $s5 from stack
+		lw	$s4, 8($sp)			# restore $s4 from stack
+		lw	$s3, 12($sp)			# restore $s3 from stack
+		lw	$s2, 16($sp)			# restore $s2 from stack
+		lw	$s1, 20($sp)			# restore $s1 from stack
+		lw	$s0, 24($sp)			# restore $s0 from stack
+		addi	$sp, $sp, 28			# deallocate stack space
+		jr	$ra
+endInsCount:
+# end of instructionCount Function	
+ 
+	.data 
+promptDivident:
+	 .asciiz "\nEnter Divident: "
+promptDivisor:
+	.asciiz "Enter Divisor: "
+outQuotient:
+	.asciiz "Quotient: "
+divisionByZeroError:
+	.asciiz "Divisor should not be 0!\n"
+promptRepeat:
+	.asciiz "\n\nDo you want to do new Division? \nEnter 1 for Yes or any other integer for No\nYour Choice: "	
+oriCount:
+	.asciiz "\nOri Operation Count: "
+addCount:
+	.asciiz "\nAdd Operation Count: "
+lwCount:
+	.asciiz "\nLw Operation Count: "
+outMain:
+	.asciiz "Main Function:"
+outInsCount:
+	.asciiz "\n\nInstruction Count Function:"

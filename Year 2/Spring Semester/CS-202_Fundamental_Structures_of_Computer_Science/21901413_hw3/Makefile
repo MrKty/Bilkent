@@ -1,0 +1,2 @@
+simulator: Computer.h Computer.cpp MaxHeap.h MaxHeap.cpp MinHeap.h MinHeap.cpp Request.h Request.cpp Simulation.h Simulation.cpp main.cpp
+	g++ -o simulator Computer.cpp MaxHeap.cpp MinHeap.cpp Request.cpp Simulation.cpp main.cpp

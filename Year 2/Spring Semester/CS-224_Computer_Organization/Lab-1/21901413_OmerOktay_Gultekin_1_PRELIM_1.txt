@@ -1,0 +1,361 @@
+CS224
+Lab No. 1
+Section No. 1
+Full Name: Omer Oktay Gultekin
+Bilkent ID: 21901413
+Date: 20.02.2022
+
+Note: There was no instruction to read integer from run i/o tab. Since we will use it in lab I use Input Dialogs for taking inputs
+in this preliminary report to learn them.
+
+PART A CreateArrayAndTwist:
+
+	.text
+main:	la	$a0, prompt1		
+	li	$v0, 51			# display message and read num of elements (integer) from user
+	syscall				# syscall 51 preferrable over syscall 5 since it allows to check wrong values
+	
+	add	$s0, $a0, $zero		# $s0 = num of elements 
+	add 	$t0, $a1, $zero 	# $t0 = status code (0: OK, 1: not integer, 2: canceled, 3: no data)
+	
+	bne	$t0, $zero, main	# check status code == 0 else ask again
+	addi	$t1, $zero, 20		# $t1 = max length array can have
+	sltu	$t2, $t1, $s0		# boundary check if 0 <= $s0 <= 20 $t2 = 0 else 1
+	bne	$t2, $zero, main	# $t2 = 0 -> in bound, otherwise ask again to correct boundary  	
+	
+	la	$s1, array		# $s1 = constant pointer to the first index of the array
+	
+# get elements and put them into the array
+	beq	$s0, $zero, finish	# array length is zero, no point to continue program
+	addi	$a0, $s1, 0		# pass pointer into function
+	addi	$a1, $s0, 0		# number of items remaining
+	jal	insert
+
+	addi	$a0, $s1, 0		# pointer of the first index is given as parameter to the method
+	addi	$a1, $s0, 0		# number of elements given as parameter
+	jal	display			# array printed
+	
+	addi	$a0, $s1, 0		# pointer to the first index of the array passed as first param
+	addi	$a1, $s0, 0		# number of elements given as parameter
+	jal	twist			# array twisted
+	
+	addi	$a0, $s1, 0		# pointer of the first index is given as parameter to the method
+	addi	$a1, $s0, 0		# number of elements given as parameter
+	jal	display			# array printed
+		
+# finish program
+finish:
+	li	$v0, 10
+	syscall
+
+	
+# arguments: $a0 -> array pointer, $a1 -> array length
+insert:
+	addi	$t0, $a0, 0		# $t0 = pointer to the first element of the array
+	addi	$t1, $a1, 0		# $t1 = num of items remaining
+	
+msg:	la	$a0, prompt2		
+	li	$v0, 51			# display message and read integer element from user
+	syscall
+	
+next:	add	$t2, $a0, $zero		# $t2 = next element 
+	add 	$t3, $a1, $zero 	# $t3 = status code (0: OK, 1: not integer, 2: canceled, 3: no data)
+	bne	$t3, $zero, repeat
+	sw	$t2, 0($t0)
+	addi	$t0, $t0, 4		# Increment the pointer to point next index
+	addi	$t1, $t1, -1		# Decrement the number of items remaining
+	bne	$t1, $zero, msg		# Take next element
+	j 	done
+
+repeat: 
+	la	$a0, prompt3		
+	li	$v0, 51			# display message and read integer from user again
+	syscall
+	j 	next
+
+done:	jr	$ra
+# End of insert function
+
+
+# $a0 -> pointer to the first point in array, $a1 -> number of elements
+twist:	addi	$t6, $zero, 1		# $t6= 1
+	beq	$a1, $t6, end		# there is no point to twist since length is 1
+	addi	$t0, $zero, 2		# $t0= divider to find middle of the array	
+	div 	$a1, $t0		
+	mflo	$t1			# $t1= $a1 / $t0
+	mfhi	$t2			# $t2= $a1 mod $t0
+
+# if mod == 0 even, mod == 1 even number of elements
+	addi	$t3, $zero, 4		# offset of words
+	mult 	$t1, $t3		# get offset for middle point
+	mflo	$t4
+	add	$t4, $t4, $a0		# array[length / 2] -> middle for odd, upper first element for even length
+	addi	$t5, $a0, 0		# pointer for lower part first element 
+	beq	$t2, $zero, replace
+#odd
+	addi	$t4, $t4, 4		# pointer for upper part first element
+replace:
+
+#load elements
+	lw	$t0, 0($t5)		# Get the lower element
+	lw	$t2, 0($t4)		# Get the upper element
+	
+#replace elements
+	sw	$t0, 0($t4)
+	sw	$t2, 0($t5)
+	
+	addi	$t5, $t5, 4		# next lower position
+	addi	$t4, $t4, 4		# next upper position
+	addi	$t1, $t1, -1		# decrement counter that store half length by 1
+	bne	$t1, $zero, replace	
+
+end:	jr	$ra
+# End of twist function
+
+# arguments: $a0 -> array pointer, $a1 -> array length
+display:
+	addi	$t0, $a0, 0		# $a0 will be used for printing operation
+	
+print:	lw	$a0, 0($t0)		# get next element
+	li	$v0, 1			# print integer
+	syscall
+	
+	addi	$a1, $a1, -1
+	addi	$t0, $t0, 4
+	beq	$a1, $zero, out
+	
+# Print delimiter if not last
+	la	$a0, delimiter
+	li	$v0, 4
+	syscall
+	
+	j 	print			# being last element checked already
+	
+# Print new line
+out:	la	$a0, newLine
+	li	$v0, 4
+	syscall	
+
+	jr	$ra
+# End of display function	
+		
+	.data
+array:  .space 	80
+
+prompt1:
+	.asciiz "Enter the number of elements: "
+
+prompt2:
+	.asciiz "Enter next integer element:"
+
+prompt3:
+	.asciiz "Wrong type, try again with integer type:"
+
+delimiter:
+	.asciiz ", "
+
+newLine:
+	.asciiz	"\n"
+
+PART B CheckIfBothHalfsIdentical:
+
+	.text
+main:	la	$a0, prompt1		
+	li	$v0, 51			# display message and read num of elements (integer) from user
+	syscall
+	
+	add	$s0, $a0, $zero		# $s0 = num of elements 
+	add 	$t0, $a1, $zero 	# $t0 = status code (0: OK, 1: not integer, 2: canceled, 3: no data)
+	
+	bne	$t0, $zero, main	# check status code == 0 else ask again
+	addi	$t1, $zero, 20		# $t1 = max length array can have
+	sltu	$t2, $t1, $s0		# boundary check if 0 <= $s0 <= 20 $t2 = 0 else 1
+	bne	$t2, $zero, main	# $t2 = 0 -> in bound, otherwise ask again to correct boundary	
+	
+	la	$s1, array		# $s1 = constant pointer to the first index of the array
+	
+# get elements and put them into the array
+	bne	$s0, $zero, continue	# if array length is not zero, continue program
+	la	$a0, identical		# print identical
+	li	$v0, 4
+	syscall
+	j 	finish
+
+continue:
+	addi	$a0, $s1, 0		# pass pointer into function
+	addi	$a1, $s0, 0		# number of items remaining
+	jal	insert
+
+	addi	$a0, $s1, 0		# pointer of the first index is given as parameter to the method
+	addi	$a1, $s0, 0		# number of elements given as parameter
+	jal	display			# array printed
+	
+	addi	$a0, $s1, 0		# pointer to the first index of the array passed as first param
+	addi	$a1, $s0, 0		# number of elements given as parameter
+	jal	check			# array checked
+	
+# finish program
+finish:
+	li	$v0, 10
+	syscall
+
+	
+# arguments: $a0 -> array pointer, $a1 -> array length
+insert:
+	addi	$t0, $a0, 0		# $t0 = pointer to the first element of the array
+	addi	$t1, $a1, 0		# $t1 = num of items remaining
+	
+msg:	la	$a0, prompt2		
+	li	$v0, 51			# display message and read integer element from user
+	syscall
+	
+next:	add	$t2, $a0, $zero		# $t2 = next element 
+	add 	$t3, $a1, $zero 	# $t3 = status code (0: OK, 1: not integer, 2: canceled, 3: no data)
+	bne	$t3, $zero, repeat
+	sw	$t2, 0($t0)
+	addi	$t0, $t0, 4		# Increment the pointer to point next index
+	addi	$t1, $t1, -1		# Decrement the number of items remaining
+	bne	$t1, $zero, msg		# Take next element
+	j 	done
+
+repeat: 
+	la	$a0, prompt3		
+	li	$v0, 51			# display message and read integer from user again
+	syscall
+	j 	next
+
+done:	jr	$ra
+# End of insert function
+
+## $a0 -> pointer to the first point in array, $a1 -> number of elements
+check:	addi	$t6, $zero, 1		# $t6= 1
+	beq	$a1, $t6, go		# there is no point to check since length is 1
+	addi	$t0, $zero, 2		# $t0 = divider to find middle of the array	
+	div 	$a1, $t0		
+	mflo	$t1			# $t1= $a1 / $t0
+	mfhi	$t2			# $t2= $a1 mod $t0
+
+# if mod == 0 even, mod == 1 even number of elements
+	addi	$t3, $zero, 4		# offset of words
+	mult 	$t1, $t3		# get offset for middle point
+	mflo	$t4
+	add	$t4, $t4, $a0		# array[length / 2] -> middle for odd, upper first element for even length
+	addi	$t5, $a0, 0		# pointer for lower part first element 
+	beq	$t2, $zero, latter
+#odd
+	addi	$t4, $t4, 4		# pointer for upper part first element
+latter:
+
+#load elements
+	lw	$t0, 0($t5)		# Get the lower element
+	lw	$t2, 0($t4)		# Get the upper element
+	
+#check elements
+	bne	$t0, $t2, halt 
+	
+	addi	$t5, $t5, 4		# next lower position
+	addi	$t4, $t4, 4		# next upper position
+	addi	$t1, $t1, -1		# decrement counter that store half length by 1
+	bne	$t1, $zero, latter
+go:	la	$a0, identical
+	j	end
+
+halt:	la	$a0, notIdentical
+
+
+end:	li	$v0, 4			# print identical or not identical
+	syscall
+	jr	$ra
+# End of check function
+
+# arguments: $a0 -> array pointer, $a1 -> array length
+display:
+	addi	$t0, $a0, 0		# $a0 will be used for printing operation
+	
+print:	lw	$a0, 0($t0)		# get next element
+	li	$v0, 1
+	syscall
+	
+	addi	$a1, $a1, -1
+	addi	$t0, $t0, 4
+	beq	$a1, $zero, out
+	
+# Print delimiter if not last
+	la	$a0, delimiter
+	li	$v0, 4
+	syscall
+	
+	j 	print			# being last element checked already
+	
+# Print new line
+out:	la	$a0, newLine
+	li	$v0, 4
+	syscall	
+
+	jr	$ra
+# End of display function	
+
+	.data
+array:  .space 	80
+
+prompt1:
+	.asciiz "Enter the number of elements: "
+
+prompt2:
+	.asciiz "Enter next integer element:"
+
+prompt3:
+	.asciiz "Wrong type, try again with integer type:"
+
+delimiter:
+	.asciiz ", "
+
+newLine:
+	.asciiz	"\n"
+
+identical:
+	.asciiz	"Halfs are identical!"
+
+notIdentical:
+	.asciiz	"Halfs are not identical!"
+
+PART C ArithmeticExpression:
+
+# a, b and c values are in data part, one can change them from there (there was no instruction to get values from user)
+	.text
+main:	lw	$s0, a			# $s0= a
+	lw	$s1, b			# $s1= b
+	lw	$s2, c			# $s2= c
+
+# do intermediate steps with temp variables
+# convert c to - c
+	nor	$t0, $s2, $zero
+	addi	$t0, $t0, 1		# $t0= - c
+	
+	add	$t1, $s1, $t0		# $t1= b - c
+	mult 	$s0, $t1		# a x (b - c)
+	mflo	$t2			# $t2 = a x (b - c)
+
+# mod operation is just considering 4 less significant bits for modulo 16
+# masking operation with "and" and number 1111 in binary will give 4 less significant bits
+	andi	$t3, $t2, 15
+		
+	la	$a0, x
+	li	$v0, 4		# print string
+	syscall
+	
+	addi	$a0, $t3, 0
+	li	$v0, 1		# print integer
+	syscall
+	
+# finish program
+	li	$v0, 10
+	syscall
+
+	.data
+x:
+	.asciiz "x = "
+
+a:	.word	-10			# negative integers works as well
+b:	.word	10
+c:	.word	8
