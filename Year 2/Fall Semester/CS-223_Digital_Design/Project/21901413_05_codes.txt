@@ -1,0 +1,462 @@
+// Omer Oktay Gultekin 21901413 05
+    // Top Module
+    module processor(input logic clk, reset,  BLeft , BRight, input logic [11:0] sws,
+                          output logic [6:0] seg, output logic dp , output logic [3:0] an);
+       logic BLeft_deb, EQ, PC_sel, reg_wr_sel, M_re, M_we, RF_we, ALU_src_sel;
+       logic [2:0] RF_wa, RF_add1, RF_add2, j;
+       logic [3:0] M_add, const_num;
+       logic [11:0] instruction;
+       logic isexternal;
+       logic [2:0] ALU_op;
+       
+       ButtonDebouncer debouncer_left( clk , BLeft , BLeft_deb);
+       ButtonDebouncer debouncer_right( clk , BRight , isexternal);
+             
+       DatapathFetch(clk, reset, BLeft_deb, isexternal, EQ, sws,
+       reg_wr_sel, M_re, M_we, RF_we, ALU_src_sel, ALU_op, M_add,
+       const_num, RF_wa, RF_add1, RF_add2);
+       DatapathExecute exec(clk, reset, reg_wr_sel, M_re, M_we, RF_we, ALU_src_sel, ALU_op, BLeft_deb, M_add, const_num, RF_wa, RF_add1, RF_add2, EQ,
+       seg, dp, an);
+     endmodule
+  
+     //Debouncer
+module ButtonDebouncer(input logic clk, input logic Bin,output logic Bout);
+    logic [24:0] counter;
+    typedef enum logic [2:0]{S0,S1,S2,S3, S4} states;
+    states state, nextState;
+    logic start_counter;
+    
+    always_ff@(posedge clk)
+        begin    
+            state <= nextState;
+            if(start_counter)
+                counter <= 20000000;
+            else
+                counter <= counter - 1;
+        end
+    always_comb
+        case(state)
+            S0: if(Bin) 
+                begin //startcounter
+                    nextState = S1;    
+                    start_counter = 1;
+                end
+                else begin nextState = S0; start_counter = 0; end
+            S1: begin nextState = S2; start_counter = 0; end
+            S2: begin if(counter == 0) nextState = S3; else nextState = S2; start_counter = 0; end
+            S3: begin if(Bin) nextState = S3; else begin nextState = S4; start_counter = 1; end end 
+            S4: begin if(counter == 0) nextState = S0; else nextState = S4; start_counter = 0; end
+            default: begin nextState = S0; start_counter = 0; end
+            endcase
+    
+    assign Bout = ( state == S1 );
+endmodule
+
+//Control Unit
+module DatapathFetch(input logic clk, reset, BLeft_deb, isexternal, EQ, input logic [11:0] sws,
+    output logic reg_wr_sel, M_re, M_we, RF_we, ALU_src_sel, output logic [2:0] ALU_op, output logic [3:0] M_add,const_num,
+    output logic [2:0] RF_wa, RF_add1, RF_add2);
+    logic [2:0] PC;
+    logic PC_sel;
+    logic [11:0] rom_data;
+    logic [11:0] IR_instruction;
+    logic [11:0] instruction;
+    logic [2:0] j;
+    
+    PC pc(clk, reset, ~isexternal, BLeft_deb, PC_sel, j, PC);
+    InstructionMemory rom(PC, rom_data);
+    IR inst_reg(clk, reset, isexternal, BLeft_deb, rom_data, sws, IR_instruction);
+    assign instruction = isexternal ? sws: IR_instruction; 
+    Controller cont(clk, reset, BLeft_deb, isexternal, EQ, instruction, PC_sel, reg_wr_sel, M_re, M_we, RF_we, ALU_src_sel,
+            ALU_op, M_add, const_num, j, RF_wa, RF_add1, RF_add2);
+endmodule
+//PC
+module PC(input logic clk, reset, WE, BLeft_deb, PC_sel,
+    input logic [2:0] j, output logic [2:0] out);
+    always_ff@(posedge clk or posedge reset)
+        if(reset)
+            out <= 0;
+        else if(BLeft_deb == 0 | WE == 0)
+            out <= out;
+        else if(WE)
+            if(PC_sel)
+                out <= (out + 1) % 8;
+            else
+                out <= (out + j) % 8;
+endmodule
+//ROM
+module InstructionMemory(input logic [2:0] addr,
+    output logic [11:0] data);
+    always_comb
+        case ( addr )
+        0: data = 12'b000_00_111_0101; //load rf[7] =  d[5]
+        1: data = 12'b000_00_001_0100; //load rf[1] = d[4]
+        2: data = 12'b101_010_111_011; //rf[2] = rf[7] + 3 -> rf[2] = 8
+        3: data = 12'b010_011_010_001; //rf[3] = rf[2] - rf[1] -> rf[3] = 4
+        4: data = 12'b000_00_100_0001; //rf[4] = 1
+        5: data = 12'b001_00_100_0101; //store d[5] = rf[4] = 1
+        6: data = 12'b000_00_001_0101; //load rf[1] = d[5]
+        7: data = 12'b111_010_100_001; // Jump 2 slot if rf[4] == rf[1]
+        endcase
+endmodule
+//IR
+module IR(input logic clk, reset, isexternal, BLeft_deb,
+    input logic [11:0] next_inst, sws, output logic[11:0] out);
+    always_ff@(posedge clk or posedge reset)
+        if(reset)
+            out <= next_inst;
+        else
+            out <= isexternal ? out : next_inst;
+endmodule
+//Controller
+module Controller(input logic clk, reset, BLeft_deb, isexternal, EQ,
+    input logic [11:0] instruction, output logic PC_sel, reg_wr_sel, M_re, M_we, RF_we, ALU_src_sel,
+    output logic [2:0] ALU_op, output logic [3:0] M_add, const_num, output logic [2:0] j, RF_wa, RF_add1, RF_add2);
+    
+    //state register
+    always_ff@(posedge clk, posedge reset)
+        if(reset)
+        begin
+            PC_sel <= 1;
+            reg_wr_sel <= 0;
+            M_re <= 0;
+            M_we <= 0;
+            RF_we <= 0;
+            ALU_src_sel <= 1;
+            ALU_op <= 3'b111;
+            j <= 0;
+            M_add <= 0;
+            const_num <= 0;
+            RF_wa <= 0;
+            RF_add1 <= 0;
+            RF_add2 <= 0;
+        end
+        
+        else
+            begin
+            if(EQ) PC_sel <= 0;
+            else PC_sel <= 1;
+            if(BLeft_deb | isexternal) begin
+            case(instruction[11:9])
+                3'b000:
+                begin
+                    RF_wa <= instruction[6:4];
+                    RF_we <= 1;
+                    reg_wr_sel <= 1;
+                    M_add <= instruction[3:0];
+                    M_re <= 1;
+                    PC_sel <= 1;
+                    M_we <= 0;
+                    ALU_src_sel <= 1;
+                    ALU_op <= 0;
+                    const_num <= 0;
+                    RF_add1 <= 0;
+                    RF_add2 <= 0;
+                end
+                3'b001:
+                begin
+                    RF_add2 <= instruction[6:4];
+                    M_add <= instruction[3:0];
+                    M_we <= 1;
+                    PC_sel <= 1;
+                    reg_wr_sel <= 0;
+                    M_re <= 0; 
+                    ALU_src_sel <= 1;
+                    ALU_op <= 3'b001;
+                    const_num <= 0;
+                    RF_wa <= 0; 
+                    RF_add1 <= 0;
+                    RF_we <= 0;
+                end
+                3'b010:
+                begin
+                    RF_wa <= instruction[8:6];
+                    RF_we <= 1;
+                    RF_add1 <= instruction[5:3];
+                    RF_add2 <= instruction[2:0];
+                    ALU_src_sel <= 1;
+                    ALU_op <= 3'b010;
+                    reg_wr_sel <= 0;
+                    PC_sel <= 1;
+                    M_re <= 0; 
+                    M_we <= 0;
+                    M_add <= 0; 
+                    const_num <= 0;
+                end
+                3'b101:
+                begin
+                    const_num[3] <= 0;
+                    const_num[2] <= instruction[2];
+                    const_num[1] <= instruction[1];
+                    const_num[0] <= instruction[0];
+                    ALU_op <= 3'b011;
+                    ALU_src_sel <= 0;
+                    RF_we <= 1;
+                    RF_add1 <= instruction[5:3];
+                    RF_wa <= instruction[8:6];
+                    reg_wr_sel <= 0;
+                    PC_sel <= 1;
+                    M_re <= 0; 
+                    M_we <= 0; 
+                    M_add <= 0;
+                    RF_add2 <= 0;
+                end
+                3'b111:
+                begin
+                    RF_add1 <= instruction[2:0];
+                    RF_add2 <= instruction[5:3];
+                    j <= instruction[8:6];
+                    ALU_src_sel <= 1;
+                    reg_wr_sel <= 0;
+                    ALU_op <= 3'b100; 
+                    M_add <= 0; 
+                    const_num <= 0; 
+                    RF_wa <= 0; 
+                    M_re <= 0; 
+                    M_we <= 0;
+                    RF_we <= 0; 
+                end
+            endcase
+            end
+            end
+endmodule
+//Datapath
+module DatapathExecute(input logic clk, reset, reg_wr_sel, M_re, M_we, RF_we, ALU_src_sel, input logic [2:0] ALU_op, input logic BLeft_deb, input logic [3:0] M_add, 
+    const_num, input logic [2:0] RF_wa, RF_add1, RF_add2,
+    output logic EQ, output logic [6:0] seg, output logic dp , output logic [3:0] an);
+    logic [3:0] RF_d1;
+    logic [3:0] RF_d2;
+    logic [3:0] RF_wd;
+    logic [3:0] ALU_res;
+    logic [3:0] M_wd;
+    logic [3:0] M_rd;
+
+   
+    RegisterFile reg_file(RF_we, clk, reset, ALU_src_sel, RF_add1, RF_add2, RF_wa, RF_wd, const_num, RF_d1, RF_d2, M_wd);
+    ALU alu(RF_d1, RF_d2, ALU_op, EQ, ALU_res);
+    DataMemory mem(M_add, M_wd, M_re, M_we, clk, reset, M_rd);
+    Mux2to1For4Bit wr_sel_mux(M_rd,ALU_res, reg_wr_sel, RF_wd);
+    SevenSegmentDisplay sevenSegment( clk , EQ, RF_d1 , RF_d2, ALU_res, RF_wd, M_add, M_wd, ALU_op, RF_wa, RF_add2, seg, dp, an); 
+endmodule
+//Reg File
+module RegisterFile(input logic RF_we, clk, reset, ALU_src_sel, input logic [2:0] RF_add1, RF_add2,
+    RF_wa, input logic [3:0] RF_wd, const_num, output logic [3:0] RF_d1, RF_d2, M_wd);
+    
+    logic [3:0] reg_file [7:0];
+    always_ff@(posedge clk or posedge reset)
+        begin
+            if (reset)
+            begin
+                RF_d1 <= 0;
+                RF_d2 <= 0;
+                M_wd <= 0;
+                reg_file[0] <= 0;
+                reg_file[1] <= 0;
+                reg_file[2] <= 0;
+                reg_file[3] <= 0;
+                reg_file[4] <= 0;
+                reg_file[5] <= 0;
+                reg_file[6] <= 0;
+                reg_file[7] <= 0;
+            end
+            else begin
+                if(RF_we) reg_file[RF_wa] <= RF_wd; 
+                RF_d1 <= reg_file[RF_add1];
+                M_wd <= reg_file[RF_add2];
+                if(ALU_src_sel) RF_d2 <= reg_file[RF_add2];
+                else RF_d2 <= const_num;
+                end
+        end
+endmodule
+//ALU
+module ALU(input logic [3:0] A, B, input logic[2:0] ALU_op, output logic EQ, output logic [3:0] res);
+    logic [3:0] sum;
+    logic [3:0] dif;
+    logic [3:0] cout1;
+    logic [3:0] cout2;
+    FullAdder sumbit0( 0, A[0], B[0], cout1[0], sum[0]);
+    FullAdder sumbit1( cout1[0], A[1], B[1], cout1[1], sum[1]);
+    FullAdder sumbit2( cout1[1], A[2], B[2], cout1[2], sum[2]);
+    FullAdder sumbit3( cout1[2], A[3], B[3], cout1[3], sum[3]);
+    FullAdder difbit0( 1, A[0], ~B[0], cout2[0], dif[0]);
+    FullAdder difbit1( cout2[0], A[1], ~B[1], cout2[1], dif[1]);
+    FullAdder difbit2( cout2[1], A[2], ~B[2], cout2[2], dif[2]);
+    FullAdder difbit3( cout2[2], A[3], ~B[3], cout2[3], dif[3]);
+    
+    always_comb
+        case(ALU_op)
+            3'b000: begin res = 0; EQ = 0; end
+            3'b001: begin res = 0; EQ = 0; end
+            3'b010: begin res = dif; EQ = 0; end
+            3'b011: begin res = sum; EQ = 0; end
+            3'b100: begin res = 0; EQ = ( A == B); end
+        endcase
+endmodule
+//Full adder
+module FullAdder(input logic cin, a, b, output logic cout, sum);
+        assign sum = a ^ b ^ cin;
+        assign cout = (a & b) | (a & cin) |(b & cin);
+endmodule
+//Data Memory
+module DataMemory(input logic [3:0] M_add, M_wd, input logic M_re, M_we, clk, reset,
+    output logic [3:0] M_rd);
+    logic [3:0] data_memory [15:0];
+    
+    always_ff@(posedge clk or posedge reset)
+        begin
+            if (reset)
+            begin 
+                M_rd <= 0;
+                data_memory[0] <= 4'h0;
+                data_memory[1] <= 4'h1;
+                data_memory[2] <= 4'h2;
+                data_memory[3] <= 4'h3;
+                data_memory[4] <= 4'h4;
+                data_memory[5] <= 4'h5;
+                data_memory[6] <= 4'h6;
+                data_memory[7] <= 4'h7;
+                data_memory[8] <= 4'h8;
+                data_memory[9] <= 4'h9;
+                data_memory[10] <= 4'hA;
+                data_memory[11] <= 4'hB;
+                data_memory[12] <= 4'hC;
+                data_memory[13] <= 4'hD;
+                data_memory[14] <= 4'hE;
+                data_memory[15] <= 4'hF;
+            end
+            else
+                if(M_re) M_rd <= data_memory[M_add];
+                else if(M_we) data_memory[M_add] <= M_wd;
+       end
+endmodule
+//Mux 2 to 1
+module Mux2to1For4Bit(input logic [3:0] a, b, input logic s, output logic [3:0] res);
+        assign res = s ? a : b;
+endmodule
+//Seven Segment
+module SevenSegmentDisplay(
+    input logic clk, EQ, 
+    input logic [3:0] RF_d1, RF_d2, ALU_res, RF_wd, M_add, M_wd,
+    input logic [2:0] ALU_op, RF_wa, RF_add2,
+    output logic [6:0]seg, output logic dp,
+    output logic [3:0] an
+    );
+    
+    localparam N = 18;
+    logic [N-1:0] cnt = {N{1'b0}};
+    always@ (posedge clk)
+        cnt <= cnt + 1;
+        
+    logic [3:0]dig_val;
+    logic [3:0]dig_en;
+     
+    always@ (*)
+     begin
+     dig_en = 4'b1111;
+     dig_val = 0;
+     
+      case(cnt[N-1:N-2])
+       2'b00 :  //1st SevSeg.
+        begin
+            case(ALU_op)
+                3'b000:
+                    dig_val = RF_wd;
+                3'b001:
+                    dig_val = M_wd;
+                3'b010:
+                    dig_val = ALU_res;
+                3'b011:
+                    dig_val = ALU_res;
+                3'b100:
+                    dig_val = EQ;
+                default: dig_val = 0;
+             endcase
+         dig_en = 4'b1110;
+        end
+       2'b01:  //2nd SevSeg.
+        begin
+         case(ALU_op)
+                3'b000:
+                    dig_val = 4'b0001;
+                3'b001:
+                    dig_val = 4'b0010;
+                3'b010:
+                    dig_val = 4'b0011;
+                3'b011:
+                    dig_val = 4'b0100;
+                3'b100:
+                    dig_val = 4'b0101;
+                default: dig_val = 0;
+         endcase
+         dig_en = 4'b1101;
+        end
+        
+       2'b10:  //3rd SevSeg.
+        begin
+         case(ALU_op)
+                3'b000:
+                    dig_val = M_add;
+                3'b001:
+                    dig_val = {1'b0, RF_add2};
+                3'b010:
+                    dig_val = RF_d2;
+                3'b011:
+                    dig_val = RF_d2;
+                3'b100:
+                    dig_val = RF_d2;
+                default: dig_val = 0;
+         endcase
+         dig_en = 4'b1011;
+        end
+         
+       2'b11:  //4th SevSeg.
+        begin
+         case(ALU_op)
+                3'b000:
+                    dig_val = {1'b0, RF_wa};
+                3'b001:
+                    dig_val = M_add;                
+                3'b010:
+                    dig_val = RF_d1;
+                3'b011:
+                    dig_val = RF_d1;
+                3'b100:
+                    dig_val = RF_d1;
+                default: dig_val = 0;
+         endcase
+         dig_en = 4'b0111;
+        end
+      endcase
+     end
+     
+    
+    //Convert digits to Display.
+    logic [6:0] sseg_LEDs; 
+    always @(*)
+     begin 
+      sseg_LEDs = 7'b1111111; //default
+      case( dig_val)
+       5'd0 : sseg_LEDs = 7'b1000000; //0
+       5'd1 : sseg_LEDs = 7'b1111001; //1
+       5'd2 : sseg_LEDs = 7'b0100100; //2
+       5'd3 : sseg_LEDs = 7'b0110000; //3
+       5'd4 : sseg_LEDs = 7'b0011001; //4
+       5'd5 : sseg_LEDs = 7'b0010010; //5
+       5'd6 : sseg_LEDs = 7'b0000010; //6
+       5'd7 : sseg_LEDs = 7'b1111000; //7
+       5'd8 : sseg_LEDs = 7'b0000000; //8
+       5'd9 : sseg_LEDs = 7'b0010000; //9
+       5'd10: sseg_LEDs = 7'b0001000; //a
+       5'd11: sseg_LEDs = 7'b0000011; //b
+       5'd12: sseg_LEDs = 7'b1000110; //c
+       5'd13: sseg_LEDs = 7'b0100001; //d
+       5'd14: sseg_LEDs = 7'b0000110; //e
+       5'd15: sseg_LEDs = 7'b0001110; //f
+      endcase
+    end
+    
+    assign seg = sseg_LEDs; 
+    assign an = dig_en;
+    assign dp = 1'b1; //dp off
+    
+endmodule

@@ -1,0 +1,248 @@
+// Omer Oktay Gultekin 21901413 05
+
+//fulladderstructural
+module fulladderstructural(
+    input logic a,
+    input logic b,
+    input  logic cin,
+    output logic s,
+    output logic cout
+    );
+    logic n1, n2, n3;
+    halfadder ha1(a, b, n1, n2);
+    halfadder ha2(n1, cin, s, n3);
+    or2 or1(n2, n3, cout);
+endmodule
+
+module halfadder(input logic a, b, output logic sum, cout);
+    and2 and1(a, b, cout);
+    xor2 xor1(a, b, sum);
+endmodule
+
+module and2(input logic a, b, output logic c);
+    assign c = a & b;
+endmodule
+
+module xor2(input logic a, b, output logic c);
+    assign c = a ^ b;
+endmodule
+
+module or2(input logic a, b, output logic c);
+    assign c = a | b;
+endmodule
+
+//fulladderbehavioral
+`timescale 1ns / 1ps
+
+module fulladder(
+    input logic a,
+    input logic b,
+    input logic cin,
+    output logic s,
+    output logic cout
+    );
+    
+    logic p, g;
+    
+    assign p = a ^ b;
+    assign g = a & b;
+    
+    assign s = p ^ cin;
+    assign cout = g | (p & cin);
+endmodule
+
+//2 bit adder
+`timescale 1ns / 1ps
+
+module adder2bit(
+    input logic a0,
+    input logic a1,
+    input logic b0,
+    input logic b1,
+    input logic cin,
+    output logic s0,
+    output logic s1,
+    output logic cout
+    );
+    
+    logic n1;
+    
+    fulladderstructural fulladder1(a0, b0, cin, s0, n1);
+    fulladderstructural fulladder2(a1, b1, n1, s1, cout);
+    
+endmodule
+
+//labcalculator
+`timescale 1ns / 1ps
+
+module labcalculator(
+    input logic a,
+    input logic b,
+    input logic c,
+    input logic d,
+    output logic y,
+    output logic z
+    );
+    logic n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15, n16, n17, n18, 
+    n19, n20, n21, n22, n23, n24, n25, n26, n27;
+    
+    nor2 NOR1(c,c, n1);
+    nor2 NOR2(d,d, n2);
+    and2 AND1(n1, n2, n3);
+    and2 AND2(n3, a, n4);
+    and2 AND3(n3, b, n5);
+    and2 AND4(n4, n5, n6);
+    and2 AND5(n1, d, n7);
+    and2 AND6(n7, a, n8);
+    and2 AND7(n7, b, n9);
+    nor2 NOR3(n8, n9, n10);
+    and2 AND8(n7, n10, n11);
+    nor2 NOR4(n6, n11, n12);
+    nor2 NOR5(n12, n12, n18);
+    and2 AND9(n2, c, n13);
+    and2 AND10(n13, a, n14);
+    and2 AND11(n13, b, n15);
+    halfadder adder(n14, n15, n16, n17);
+    nor2 NOR6(n16, n18, n19);
+    nor2 NOR7(n19, n19, n20);
+    and2 AND12(c, d, n21);
+    and2 AND13(n21, a, n22);
+    and2 AND14(n21, b, n23);
+    halfsubt subt(n22, n23, n24, n25);
+    nor2 NOR8(n20, n24, n26);
+    nor2 NOR9(n26, n26, y);
+    nor2 NOR10(n17, n25, n27);
+    nor2 NOR11(n27, n27, z);
+        
+endmodule
+
+module nor2(input logic a, b, output logic c);
+    assign c = ~(a | b);
+endmodule
+
+module halfsubt(input logic a, b, output logic d, bout);
+    assign d = a ^ b;
+    assign bout = ~a & b;
+endmodule
+
+//fulladder structural and behavioral testbench
+`timescale 1ns / 1ps
+
+module fulladderstructuraltestbench();
+    logic a, b, cin;
+    logic s, cout;
+    fulladder adder(a, b, cin, s, cout);
+    initial begin
+        a = 0; b = 0; cin = 0; #10;
+        if (s !== 0 & cout !== 0) $display("000 failed");
+        cin = 1; #10;
+        if (s !== 1 & cout !== 0) $display("001 failed");
+        b = 1; #10;
+        if (s !== 0 & cout !== 1) $display("011 failed");
+        cin = 0; #10;
+        if (s !== 1 & cout !== 0) $display("010 failed");
+        a = 1; #10;
+        if (s !== 0 & cout !== 1) $display("110 failed");
+        b = 0; #10;
+        if (s !== 1 & cout !== 0) $display("100 failed");
+        cin = 1; #10;
+        if (s !== 0 & cout !== 1) $display("101 failed");
+        b = 1; #10;
+        if (s !== 1 & cout !== 1) $display("111 failed");
+    end
+endmodule
+
+module fulladderbehavioraltestbench();
+    logic a, b, cin;
+    logic s, cout;
+    fulladder adder(a, b, cin, s, cout);
+    initial begin
+        a = 0; b = 0; cin = 0; #10;
+        if (s !== 0 & cout !== 0) $display("000 failed");
+        cin = 1; #10;
+        if (s !== 1 & cout !== 0) $display("001 failed");
+        b = 1; #10;
+        if (s !== 0 & cout !== 1) $display("011 failed");
+        cin = 0; #10;
+        if (s !== 1 & cout !== 0) $display("010 failed");
+        a = 1; #10;
+        if (s !== 0 & cout !== 1) $display("110 failed");
+        b = 0; #10;
+        if (s !== 1 & cout !== 0) $display("100 failed");
+        cin = 1; #10;
+        if (s !== 0 & cout !== 1) $display("101 failed");
+        b = 1; #10;
+        if (s !== 1 & cout !== 1) $display("111 failed");
+    end
+endmodule
+
+//twobitadder testbench
+`timescale 1ns / 1ps
+
+module twobitaddertestbench();
+    logic a0, b0, a1, b1, cin;
+    logic s0, s1, cout;
+    
+    adder2bit adder(a0, a1, b0, b1, cin, s0, s1, cout);
+    initial begin
+        a0 = 0; a1 = 0; b0 = 0; b1 = 0; cin = 0; #10;
+        cin = 1; #10;
+        b1 = 1; #10;
+        cin = 0; #10;
+        b0 = 1; #10;
+        cin = 1; #10;
+        b1 = 0; #10;
+        cin = 0; #10;
+        a1 = 1; b0 = 0; #10;
+        cin = 1; #10;
+        b1 = 1; #10;
+        cin = 0; #10;
+        b0 = 1; #10;
+        cin = 1; #10;
+        b1 = 0; #10;
+        cin = 0; #10;
+        a0 = 1; b0 = 0; #10;
+        cin = 1; #10;
+        b1 = 1; #10;
+        cin = 0; #10;
+        b0 = 1; #10;
+        cin = 1; #10;
+        b1 = 0; #10;
+        cin = 0; #10;
+        a1 = 0; b0 = 0; #10;
+        cin = 1; #10;
+        b1 = 1; #10;
+        cin = 0; #10;
+        b0 = 1; #10;
+        cin = 1; #10;
+        b1 = 0; #10;
+        cin = 0; #10;
+    end
+endmodule
+
+//labcalculator testbench
+`timescale 1ns / 1ps
+
+module labcalculatortestbench();
+    logic a, b, c, d;
+    logic y, z;
+    labcalculator calculator(a, b, c, d, y, z);
+    initial begin
+        a = 0; b = 0; c = 0; d = 0; #10;
+        d = 1; #10;
+        c = 1; #10;
+        d = 0; #10;
+        b = 1; c = 0; #10;
+        d = 1; #10;
+        c = 1; #10;
+        d = 0; #10;
+        a = 1; c = 0; #10;
+        d = 1; #10
+        c = 1; #10
+        d = 0; #10
+        b = 0; c = 0; #10;
+        d = 1; #10
+        c = 1; #10
+        d = 0; #10
+    end
+endmodule

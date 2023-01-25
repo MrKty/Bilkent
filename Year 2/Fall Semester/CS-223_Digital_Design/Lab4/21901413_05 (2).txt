@@ -1,0 +1,57 @@
+// Omer Oktay Gultekin 21901413 05
+
+//multifunction register structural
+
+module mux2to1(
+    input d1,
+    input d0,
+    input s,
+    output y
+    );
+    assign y = s ? d1 : d0;
+endmodule
+
+module mux4to1(
+    input d0,
+    input d1,
+    input d2,
+    input d3,
+    input s[1:0],
+    output y
+    );
+    logic [1:0] middle;
+    mux2to1 lowmux2(d1, d0, s[0], middle[0]);
+    mux2to1 highmux2(d3, d2, s[0], middle[1]);
+    mux2to1 finalmux2( middle[1],middle[0], s[1], y);
+endmodule
+
+
+module multifunctionreg(input logic clk, reset, D[3:0],s[1:0], shr_in, shl_in,output logic Q[3:0]);
+                logic m1, m2, m3, m4;
+        
+        mux4to1 firstMux(Q[3], D[3], shr_in, Q[2], s[1:0], m1);
+        resettableflop r1(clk, reset, m1, Q[3]);
+        
+        mux4to1 secondMux(Q[2], D[2], Q[3], Q[1], s[1:0], m2);
+        resettableflop r2(clk, reset, m2, Q[2]);
+            
+        mux4to1 thirdMux(Q[1], D[1], Q[2], Q[0], s[1:0], m3);
+        resettableflop r3(clk, reset, m3, Q[1]);
+           
+        mux4to1 fourthMux(Q[0], D[0], Q[1], shl_in, s[1:0], m4);
+        resettableflop r4(clk, reset, m4, Q[0]);
+endmodule
+
+//multifunction register testbench
+module multifunction_register_testbench();
+    logic reset, clk, s[1:0], shr_in, shl_in, D[3:0], Q[3:0];
+    multifunctionreg r(clk, reset, D[3:0], s[1:0],shr_in,shl_in, Q[3:0]);
+    
+    initial begin
+        Q[3] = 1; Q[2] = 1; Q[1] = 1; Q[0] = 1; // the initial value will be 1 so that test the s == 0 case
+        for(int i = 0; i < 1024; i++)begin
+            //define reset as most significant bit so that see all reset cases at once
+            {reset, s[1], s[0], D[3], D[2], D[1], D[0], shr_in, shl_in, clk} = i; #1;
+        end
+    end
+endmodule

@@ -1,0 +1,121 @@
+// Omer Oktay Gultekin 21901413 05
+
+//Decoder 2 to 4
+`timescale 1ns / 1ps
+module decoder2to4(
+    input logic [1:0] d,
+    input logic e,
+    output logic [3:0] y
+    );
+    assign y[0] = ~d[0] & ~d[1] & e;
+    assign y[1] = d[0] & ~d[1] & e;
+    assign y[2] = ~d[0] & d[1] & e;
+    assign y[3] = d[0] & d[1] & e;
+endmodule
+
+//2 to 4 decoder test bench
+module decoder_test_bench();
+    logic [1:0] d;
+    logic e;
+    logic [3:0] y;
+    decoder2to4 dec2(d, e, y);
+    initial begin
+        d = 0; e = 1; #10;
+        d[0] = 1; #10;
+        d[1] = 1; d[0] = 0; #10;
+        d[0] = 1; #10;
+        e = 0; #10;
+        d[0] = 0; #10;
+        d[1] = 0; #10;
+        d[0] = 1; #10;
+    end
+endmodule
+
+//2 to 1 multiplexer
+module mux2to1(
+    input [1:0] d,
+    input s,
+    output y
+    );
+    assign y = s ? d[1] : d[0];
+endmodule
+
+//4 to 1 multiplexer by using three 2-to-1 multiplexer
+module mux4to1(
+    input [3:0] d,
+    input [1:0] s,
+    output y
+    );
+    logic [1:0] middle;
+    mux2to1 lowmux2(d[1:0], s[0], middle[0]);
+    mux2to1 highmux2(d[3:2], s[0], middle[1]);
+    mux2to1 finalmux2( middle[1:0], s[1], y);
+endmodule
+
+//4 to 1 multiplexer test bench
+module mux4to1_test_bench();
+    logic [3:0] d;
+    logic [1:0] s;
+    logic y;
+    mux4to1 mux4(d,s,y);
+    initial begin
+        s = 0; d = 15; #10;
+        d[0] = 0; #10;
+        s[0] = 1; d[0] = 1; #10;
+        d[1] = 0; #10;
+        s[1] = 1; s[0] = 0; d[1] = 1; #10;
+        d[2] = 0; #10;
+        s[0] = 1; d[2] = 1; #10;
+        d[3] = 0; #10;
+    end
+endmodule
+
+
+//8 to 1 multiplexer
+module mux8to1(
+    input logic [7:0] d,
+    input logic [2:0] s,
+    output logic y
+    );
+    
+    logic low, high, n1, n2, s2b;
+    mux4to1 lowmux4(d[3:0], s[1:0], low);
+    mux4to1 highmux4(d[7:4], s[1:0], high);
+    inv inv1(s[2], s2b);
+    and2 andfirst(low, s2b, n1);
+    and2 andsecond(high, s[2], n2);
+    or2 or1(n1,n2,y);
+endmodule
+
+module and2(input logic a, b, output logic c);
+    assign c = a & b;
+endmodule
+
+module or2(input logic a, b, output logic c);
+    assign c = a | b;
+endmodule
+
+module inv(input logic a, output logic b);
+    assign b = ~a;
+endmodule
+
+// F(A,B,C,D) function module
+module custom_module(
+    input logic [3:0] s,
+    output logic y
+    );
+    logic [7:0] d;
+    logic s0b;
+    
+    inv inv1(s[0], s0b);
+    assign d[0] = 0;
+    assign d[1] = s0b;
+    assign d[2] = s[0];
+    assign d[3] = 1;
+    assign d[4] = 0;
+    assign d[5] = s0b;
+    assign d[6] = 1;
+    assign d[7] = s[0];
+    mux8to1 mux8(d, s[3:1], y);
+    
+endmodule
